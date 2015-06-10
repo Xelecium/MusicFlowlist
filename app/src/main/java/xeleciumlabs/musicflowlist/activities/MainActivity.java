@@ -5,6 +5,7 @@ import android.content.ContentResolver;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ListView;
@@ -30,20 +31,22 @@ public class MainActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        //Attaches ListView for all audio tracks
 //        ButterKnife.inject(this);
-
         mTrackList = (ListView)findViewById(R.id.trackList);
-
+        //Instantiates the array to store the audio tracks
         mTracks = new ArrayList<Track>();
-
+        //Helper method to add audio tracks to the mTracks list
         getTrackList();
-
+        //Sorts the mTracks list alphabetically
         Collections.sort(mTracks, new Comparator<Track>() {
-            public int compare (Track a, Track b) {
-                return a.getTitle().compareTo(b.getTitle());
+            public int compare (Track t1, Track t2) {
+                return t1.getTitle().compareTo(t2.getTitle());
             }
         });
 
+        //Adapter for the ListView
         TrackAdapter adapter = new TrackAdapter(this, mTracks);
         mTrackList.setAdapter(adapter);
     }
@@ -55,27 +58,32 @@ public class MainActivity extends Activity {
     }
 
     public void getTrackList() {
-        //retrieve song info
-        ContentResolver musicResolver = getContentResolver();
-        Uri musicUri = android.provider.MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
-        Cursor musicCursor = musicResolver.query(musicUri, null, null, null, null);
 
-        if(musicCursor!=null && musicCursor.moveToFirst()){
-            //get columns
-            int titleColumn = musicCursor.getColumnIndex
-                    (android.provider.MediaStore.Audio.Media.TITLE);
-            int idColumn = musicCursor.getColumnIndex
-                    (android.provider.MediaStore.Audio.Media._ID);
-            int artistColumn = musicCursor.getColumnIndex
-                    (android.provider.MediaStore.Audio.Media.ARTIST);
-            //add songs to list
-            do {
-                long thisId = musicCursor.getLong(idColumn);
-                String thisTitle = musicCursor.getString(titleColumn);
-                String thisArtist = musicCursor.getString(artistColumn);
-                mTracks.add(new Track(thisId, thisTitle, thisArtist));
+        //Searches through storage for audio files
+        ContentResolver resolver = getContentResolver();
+        Uri uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
+        Cursor cursor = resolver.query(uri, null, MediaStore.Audio.Media.IS_MUSIC, null, null);
+
+        if(cursor != null) {
+            //Files are available
+            if (cursor.moveToFirst()) {
+                //Get info about file being referenced
+                int idColumn = cursor.getColumnIndex
+                        (MediaStore.Audio.Media._ID);
+                int titleColumn = cursor.getColumnIndex
+                        (MediaStore.Audio.Media.TITLE);
+                int artistColumn = cursor.getColumnIndex
+                        (MediaStore.Audio.Media.ARTIST);
+                //Add file to the mTracks list
+                do {
+                    long thisId = cursor.getLong(idColumn);
+                    String thisTitle = cursor.getString(titleColumn);
+                    String thisArtist = cursor.getString(artistColumn);
+                    mTracks.add(new Track(thisId, thisTitle, thisArtist));
+                }
+                while (cursor.moveToNext());
             }
-            while (musicCursor.moveToNext());
+            //Files are not available
         }
     }
 
