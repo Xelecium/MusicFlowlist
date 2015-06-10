@@ -1,0 +1,42 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:tools="http://schemas.android.com/tools"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                tools:context="xeleciumlabs.musicflowlist.activities.GettingStartedActivity"
+                android:background="#ff7201ff">
+
+    <TextView
+        android:id="@+id/gettingStartedTitle"
+        android:text="Getting Started"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="65dp"
+
+        android:textColor="#ffffffff"
+        android:textSize="40sp"
+        android:textStyle="bold"/>
+
+    <TextView
+        android:id="@+id/textView"
+        android:text="Looks like you don&apos;t have any track links established, so let&apos;s set up one!"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@id/gettingStartedTitle"
+        android:paddingLeft="24dp"
+        android:textColor="#ffffffff"
+        android:textSize="24sp"/>
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="LET&apos;S BEGIN"
+        android:id="@+id/beginButton"
+        android:layout_below="@+id/textView"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="94dp"
+
+        />
+</RelativeLayout>

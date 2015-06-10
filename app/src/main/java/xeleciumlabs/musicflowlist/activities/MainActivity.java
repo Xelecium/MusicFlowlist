@@ -1,19 +1,28 @@
 package xeleciumlabs.musicflowlist.activities;
 
 import android.app.Activity;
+import android.content.ComponentName;
 import android.content.ContentResolver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.ServiceConnection;
 import android.database.Cursor;
 import android.net.Uri;
-import android.os.Bundle;
+import android.os.IBinder;
 import android.provider.MediaStore;
+import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 
+import xeleciumlabs.musicflowlist.MusicService;
 import xeleciumlabs.musicflowlist.R;
 import xeleciumlabs.musicflowlist.adapters.TrackAdapter;
 import xeleciumlabs.musicflowlist.data.Track;
@@ -24,37 +33,30 @@ public class MainActivity extends Activity {
     private ArrayList<Track> mTracks;
     private ListView mTrackList;
 
-    //@InjectView(R.id.trackList)ListView mTrackList;
-
-    //OnCreate is for setting up static elements of the activity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        //Attaches ListView for all audio tracks
-//        ButterKnife.inject(this);
         mTrackList = (ListView)findViewById(R.id.trackList);
-        //Instantiates the array to store the audio tracks
         mTracks = new ArrayList<Track>();
-        //Helper method to add audio tracks to the mTracks list
+
         getTrackList();
-        //Sorts the mTracks list alphabetically
+
         Collections.sort(mTracks, new Comparator<Track>() {
-            public int compare (Track t1, Track t2) {
+            public int compare(Track t1, Track t2) {
                 return t1.getTitle().compareTo(t2.getTitle());
             }
         });
 
+
         //Adapter for the ListView
         TrackAdapter adapter = new TrackAdapter(this, mTracks);
         mTrackList.setAdapter(adapter);
-    }
-    //OnResume is for whenever the user loads up the activity
-    @Override
-    protected void onResume() {
-        super.onResume();
 
+        //Set empty view
+        TextView noMusic = (TextView)findViewById(android.R.id.empty);
+        mTrackList.setEmptyView(noMusic);
     }
 
     public void getTrackList() {
@@ -87,26 +89,60 @@ public class MainActivity extends Activity {
         }
     }
 
+    //====================================
+
+    private MusicService musicSrv;
+    private boolean musicBound = false;
+
+    //connect to the service
+    private ServiceConnection musicConnection = new ServiceConnection(){
+
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            MusicService.MusicBinder binder = (MusicService.MusicBinder)service;
+            //get service
+            musicSrv = binder.getService();
+            //pass list
+            musicSrv.setList(mTracks);
+            musicBound = true;
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            musicBound = false;
+        }
+    };
+
+    private Intent playIntent;
+
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
+    protected void onStart() {
+        super.onStart();
+        if(playIntent==null){
+            playIntent = new Intent(this, MusicService.class);
+            bindService(playIntent, musicConnection, Context.BIND_AUTO_CREATE);
+            startService(playIntent);
+        }
+    }
+
+    public void songPicked(View view){
+
+        musicSrv.setSong(Integer.parseInt(view.getTag().toString()));
+        musicSrv.playSong();
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
-
+        //menu item selected
         return super.onOptionsItemSelected(item);
     }
+
+    @Override
+    protected void onDestroy() {
+        stopService(playIntent);
+        musicSrv = null;
+        super.onDestroy();
+    }
+
 
 }

@@ -5,10 +5,9 @@ import android.net.Uri;
 import java.util.ArrayList;
 
 /**
- * Created by Xelecium on 6/8/2015.
+ * Created by Xelecium on 6/10/2015.
  */
 public class Track {
-
 
     private long mId;
     private String mTitle;
@@ -48,3 +47,4 @@ public class Track {
         }
     }
 }
+

@@ -1,12 +1,14 @@
-package xeleciumlabs.musicflowlist;
+package xeleciumlabs.musicflowlist.activities;
 
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import xeleciumlabs.musicflowlist.R;
 
-public class TrackSelector extends ActionBarActivity {
+
+public class TrackSelectorActivity extends ActionBarActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

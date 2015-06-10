@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:orientation="horizontal"
+              android:onClick="songPicked"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent">
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/track_item_height"
+        android:background="#dddddd"
+        >
+        <ImageView
+            android:id="@+id/albumArt"
+            android:src="@drawable/empty_albumart"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_alignParentLeft="true"
+            android:scaleType="fitStart"
+            android:adjustViewBounds="true"
+            />
+
+        <ImageButton
+            android:id="@+id/playButton"
+            android:src="@drawable/play_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentRight="true"
+            android:scaleType="fitXY"
+            android:adjustViewBounds="true"
+            />
+
+        <TextView
+            android:id="@+id/track_title"
+            android:text="Test text"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_toRightOf="@id/albumArt"
+            android:layout_toStartOf="@id/playButton"
+            android:gravity="center_vertical"
+
+
+            />
+
+
+
+    </RelativeLayout>
+</LinearLayout>

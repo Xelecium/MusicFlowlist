@@ -7,6 +7,16 @@ import android.provider.BaseColumns;
 
 /**
  * Created by Xelecium on 6/8/2015.
+ * This file stores the database functionality for the Music Flowlist application.
+ * The current schema is as follows:
+ *
+ * LEAD_TRACKS TABLE
+ * LEAD_URI TEXT PRIMARY KEY
+ *
+ * FOLLOW_TRACKS TABLE
+ * ID INTEGER PRIMARY KEY AUTOINCREMENT
+ * LEAD_URI TEXT FOREIGN KEY (REFERENCES LEAD_TRACKS(LEAD_URI))
+ * FOLLOW_URI TEXT
  */
 public class TrackListSQLiteHelper extends SQLiteOpenHelper {
 
@@ -19,7 +29,7 @@ public class TrackListSQLiteHelper extends SQLiteOpenHelper {
 
     private static String CREATE_LEAD_TRACKS =
             "CREATE TABLE " + LEAD_TABLE +                      //Create Table w/ name
-            "(" + COLUMN_LEAD_URI + " TEXT PRIMARY KEY)";       //Track's URI is primary key
+                    "(" + COLUMN_LEAD_URI + " TEXT PRIMARY KEY)";       //Track's URI is primary key
 
     //Table of following tracks
     public static final String FOLLOW_TABLE = "FOLLOW_TRACKS";  //Table name
@@ -28,11 +38,11 @@ public class TrackListSQLiteHelper extends SQLiteOpenHelper {
 
     private static String CREATE_FOLLOW_TRACKS =
             "CREATE TABLE " + FOLLOW_TABLE +                                //Create Table w/ name
-            "(" + BaseColumns._ID + " INTEGER PRIMARY KEY AUTOINCREMENT," + //Auto-incremented ID# as PKEY
-            COLUMN_FOREIGN_KEY_LEAD + " TEXT, " +                           //Leading Track's URI
-            COLUMN_FOLLOW_URI + " TEXT, " +                                 //Follow Track's URI
-            "FOREIGN KEY(" + COLUMN_FOREIGN_KEY_LEAD + ") " +               //Specify LeadTrack as FKEY
-            "REFERENCES " + LEAD_TABLE + "(" + COLUMN_LEAD_URI + "))";      //Referencing LeadTable
+                    "(" + BaseColumns._ID + " INTEGER PRIMARY KEY AUTOINCREMENT," + //Auto-incremented ID# as PKEY
+                    COLUMN_FOREIGN_KEY_LEAD + " TEXT, " +                           //Leading Track's URI
+                    COLUMN_FOLLOW_URI + " TEXT, " +                                 //Follow Track's URI
+                    "FOREIGN KEY(" + COLUMN_FOREIGN_KEY_LEAD + ") " +               //Specify LeadTrack as FKEY
+                    "REFERENCES " + LEAD_TABLE + "(" + COLUMN_LEAD_URI + "))";      //Referencing LeadTable
 
     //Constructor for the database
     public TrackListSQLiteHelper(Context context) {
