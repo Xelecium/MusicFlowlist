@@ -3,21 +3,24 @@ package xeleciumlabs.musicflowlist.activities;
 import android.app.Activity;
 import android.content.ComponentName;
 import android.content.ContentResolver;
+import android.content.ContentUris;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.IBinder;
 import android.provider.MediaStore;
 import android.os.Bundle;
-import android.util.Log;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -32,6 +35,9 @@ public class MainActivity extends Activity {
 
     private ArrayList<Track> mTracks;
     private ListView mTrackList;
+    private MusicService mService;
+    private boolean musicBound = false;
+    private Intent mIntent;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -76,12 +82,34 @@ public class MainActivity extends Activity {
                         (MediaStore.Audio.Media.TITLE);
                 int artistColumn = cursor.getColumnIndex
                         (MediaStore.Audio.Media.ARTIST);
+                int albumArtColumn = cursor.getColumnIndex
+                        (MediaStore.Audio.Media.ALBUM_ID);
+
+
+
                 //Add file to the mTracks list
                 do {
                     long thisId = cursor.getLong(idColumn);
                     String thisTitle = cursor.getString(titleColumn);
                     String thisArtist = cursor.getString(artistColumn);
-                    mTracks.add(new Track(thisId, thisTitle, thisArtist));
+                    long thisAlbumArt = cursor.getLong(albumArtColumn);
+
+                    Uri art = Uri.parse("content://media/external/audio/albumart");
+                    art = ContentUris.withAppendedId(art, thisAlbumArt);
+
+                    Bitmap bitmap = null;
+                    try {
+                        bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), art);
+                    } catch (FileNotFoundException exception) {
+                        exception.printStackTrace();
+                        bitmap = BitmapFactory.decodeResource(getResources(),
+                                R.drawable.empty_albumart);
+                    } catch (IOException e) {
+
+                        e.printStackTrace();
+                    }
+
+                    mTracks.add(new Track(thisId, thisTitle, thisArtist, bitmap));
                 }
                 while (cursor.moveToNext());
             }
@@ -91,8 +119,6 @@ public class MainActivity extends Activity {
 
     //====================================
 
-    private MusicService musicSrv;
-    private boolean musicBound = false;
 
     //connect to the service
     private ServiceConnection musicConnection = new ServiceConnection(){
@@ -101,9 +127,9 @@ public class MainActivity extends Activity {
         public void onServiceConnected(ComponentName name, IBinder service) {
             MusicService.MusicBinder binder = (MusicService.MusicBinder)service;
             //get service
-            musicSrv = binder.getService();
+            mService = binder.getService();
             //pass list
-            musicSrv.setList(mTracks);
+            mService.setList(mTracks);
             musicBound = true;
         }
 
@@ -113,22 +139,21 @@ public class MainActivity extends Activity {
         }
     };
 
-    private Intent playIntent;
 
     @Override
     protected void onStart() {
         super.onStart();
-        if(playIntent==null){
-            playIntent = new Intent(this, MusicService.class);
-            bindService(playIntent, musicConnection, Context.BIND_AUTO_CREATE);
-            startService(playIntent);
+        if(mIntent ==null){
+            mIntent = new Intent(this, MusicService.class);
+            bindService(mIntent, musicConnection, Context.BIND_AUTO_CREATE);
+            startService(mIntent);
         }
     }
 
     public void songPicked(View view){
 
-        musicSrv.setSong(Integer.parseInt(view.getTag().toString()));
-        musicSrv.playSong();
+        mService.setSong(Integer.parseInt(view.getTag().toString()));
+        mService.playSong();
     }
 
     @Override
@@ -139,8 +164,8 @@ public class MainActivity extends Activity {
 
     @Override
     protected void onDestroy() {
-        stopService(playIntent);
-        musicSrv = null;
+        stopService(mIntent);
+        mService = null;
         super.onDestroy();
     }
 

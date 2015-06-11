@@ -1,5 +1,6 @@
 package xeleciumlabs.musicflowlist.data;
 
+import android.graphics.Bitmap;
 import android.net.Uri;
 
 import java.util.ArrayList;
@@ -12,14 +13,16 @@ public class Track {
     private long mId;
     private String mTitle;
     private String mArtist;
+    private Bitmap mAlbumArt;
 
     private Uri mTrackUri;                      //URI of the track being referenced
     private ArrayList<Track> mFollowTracks;    //List of the tracks to follow the reference track
 
-    public Track(long trackId, String trackTitle, String trackArtist) {
+    public Track(long trackId, String trackTitle, String trackArtist, Bitmap trackAlbumArt) {
         mId = trackId;
         mTitle = trackTitle;
         mArtist = trackArtist;
+        mAlbumArt = trackAlbumArt;
     }
 
     public long getId() {
@@ -34,6 +37,9 @@ public class Track {
         return mArtist;
     }
 
+    public Bitmap getAlbumArt() {
+        return mAlbumArt;
+    }
     //Add a track to the list of follow tracks
     public void addFollowTrack(Track followTrack) {
         mFollowTracks.add(followTrack);

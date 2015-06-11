@@ -9,7 +9,6 @@ import android.net.Uri;
 import android.os.Binder;
 import android.os.IBinder;
 import android.util.Log;
-import android.widget.ListView;
 
 import java.util.ArrayList;
 
@@ -23,11 +22,11 @@ public class MusicService extends Service implements
         MediaPlayer.OnCompletionListener {
 
     //media player
-    private MediaPlayer player;
+    private MediaPlayer mPlayer;
     //song list
-    private ArrayList<Track> songs;
+    private ArrayList<Track> mTracks;
     //current position
-    private int songPosn;
+    private int mIndex;
 
     @Override
     public IBinder onBind(Intent arg0) {
@@ -47,7 +46,7 @@ public class MusicService extends Service implements
 
     @Override
     public void onPrepared(MediaPlayer mp) {
-//start playback
+        //start playback
         mp.start();
     }
 
@@ -55,25 +54,25 @@ public class MusicService extends Service implements
         //create the service
         super.onCreate();
         //initialize position
-        songPosn=0;
+        mIndex =0;
         //create player
-        player = new MediaPlayer();
+        mPlayer = new MediaPlayer();
 
         initMusicPlayer();
     }
 
     public void initMusicPlayer(){
         //set player properties
-        //player.setWakeMode(getApplicationContext(), PowerManager.PARTIAL_WAKE_LOCK);
-        player.setAudioStreamType(AudioManager.STREAM_MUSIC);
+        //mPlayer.setWakeMode(getApplicationContext(), PowerManager.PARTIAL_WAKE_LOCK);
+        mPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
 
-        player.setOnPreparedListener(this);
-        player.setOnCompletionListener(this);
-        player.setOnErrorListener(this);
+        mPlayer.setOnPreparedListener(this);
+        mPlayer.setOnCompletionListener(this);
+        mPlayer.setOnErrorListener(this);
     }
 
     public void setList(ArrayList<Track> theSongs){
-        songs = theSongs;
+        mTracks = theSongs;
     }
 
     public class MusicBinder extends Binder {
@@ -87,37 +86,37 @@ public class MusicService extends Service implements
 
     @Override
     public boolean onUnbind(Intent intent){
-        player.stop();
-        player.release();
+        mPlayer.stop();
+        mPlayer.release();
         return false;
     }
     public void playSong(){
         //play a song
-        player.reset();
+        mPlayer.reset();
         //get song
-        Track playSong = songs.get(songPosn);
-//get id
+        Track playSong = mTracks.get(mIndex);
+        //get id
         long currSong = playSong.getId();
-//set uri
+        //set uri
         Uri trackUri = ContentUris.withAppendedId(
                 android.provider.MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
                 currSong);
 
         try{
-            player.setDataSource(getApplicationContext(), trackUri);
+            mPlayer.setDataSource(getApplicationContext(), trackUri);
         }
         catch(Exception e){
             Log.e("MUSIC SERVICE", "Error setting data source", e);
         }
 
-        player.prepareAsync();
+        mPlayer.prepareAsync();
 
 
 
     }
 
     public void setSong(int songIndex){
-        songPosn=songIndex;
+        mIndex =songIndex;
     }
 
 }

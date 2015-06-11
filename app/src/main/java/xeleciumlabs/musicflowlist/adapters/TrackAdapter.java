@@ -1,6 +1,8 @@
 package xeleciumlabs.musicflowlist.adapters;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.provider.MediaStore;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -48,9 +50,11 @@ public class TrackAdapter extends BaseAdapter {
     public View getView(int position, View convertView, ViewGroup parent) {
 
         LinearLayout layout = (LinearLayout)mInflater.inflate(R.layout.track_item, parent, false);
+        ImageView trackAlbumArt = (ImageView)layout.findViewById(R.id.albumArt);
         TextView trackTitle = (TextView)layout.findViewById(R.id.track_title);
         Track currentTrack = mTracks.get(position);
 
+        trackAlbumArt.setImageBitmap(currentTrack.getAlbumArt());
         trackTitle.setText(currentTrack.getTitle());
 
         layout.setTag(position);
