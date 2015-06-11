@@ -54,7 +54,7 @@ public class MusicService extends Service implements
         //create the service
         super.onCreate();
         //initialize position
-        mIndex =0;
+        mIndex = 0;
         //create player
         mPlayer = new MediaPlayer();
 
@@ -91,6 +91,9 @@ public class MusicService extends Service implements
         return false;
     }
     public void playSong(){
+        if (mPlayer == null) {
+            mPlayer = new MediaPlayer();
+        }
         //play a song
         mPlayer.reset();
         //get song
@@ -116,7 +119,7 @@ public class MusicService extends Service implements
     }
 
     public void setSong(int songIndex){
-        mIndex =songIndex;
+        mIndex = songIndex;
     }
 
 }

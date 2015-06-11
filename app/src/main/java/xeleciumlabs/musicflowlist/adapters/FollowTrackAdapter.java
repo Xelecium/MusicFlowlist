@@ -8,6 +8,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -21,14 +22,14 @@ import xeleciumlabs.musicflowlist.data.Track;
 /**
  * Created by Xelecium on 6/10/2015.
  */
-public class TrackAdapter extends BaseAdapter {
+public class FollowTrackAdapter extends BaseAdapter {
 
     private Context mContext;
     private ArrayList<Track> mTracks;
     private LayoutInflater mInflater;
 
     //Base Constructor
-    public TrackAdapter(Context context, ArrayList<Track> tracks) {
+    public FollowTrackAdapter(Context context, ArrayList<Track> tracks) {
         mContext = context;
         mTracks = tracks;
         mInflater = LayoutInflater.from(context);
@@ -55,15 +56,13 @@ public class TrackAdapter extends BaseAdapter {
 
         //if view is not yet populated
         if (convertView == null) {
-            convertView = mInflater.inflate(R.layout.track_item, parent, false);
+            convertView = mInflater.inflate(R.layout.follow_track_item, parent, false);
 
             holder = new ViewHolder();
             holder.albumArt = (ImageView)convertView.findViewById(R.id.albumArt);
             holder.trackName = (TextView)convertView.findViewById(R.id.track_title);
-            holder.viewPosition = position; //TODO Need to find a way to get this value for the intent from MainActivity to FollowSelectorActivity
-            convertView.setTag(holder);      //Tag for the RecyclerView
 
-
+            convertView.setTag(holder);
         }
         else {
             holder = (ViewHolder)convertView.getTag();
@@ -89,6 +88,7 @@ public class TrackAdapter extends BaseAdapter {
 
         holder.albumArt.setImageBitmap(bitmap);
         holder.trackName.setText(currentTrack.getTitle());
+
         return convertView;
     }
 
@@ -96,7 +96,7 @@ public class TrackAdapter extends BaseAdapter {
     private static class ViewHolder {
         ImageView albumArt;
         TextView trackName;
-        int viewPosition;
+        CheckBox checkBox;
     }
 
 

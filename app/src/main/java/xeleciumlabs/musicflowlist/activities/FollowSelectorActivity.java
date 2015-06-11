@@ -1,73 +1,116 @@
 package xeleciumlabs.musicflowlist.activities;
 
 import android.app.Activity;
+import android.app.Service;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.IBinder;
-import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.ImageView;
+import android.widget.ListView;
+import android.widget.TextView;
 
 import java.util.ArrayList;
 
 import xeleciumlabs.musicflowlist.MusicService;
 import xeleciumlabs.musicflowlist.R;
+import xeleciumlabs.musicflowlist.adapters.FollowTrackAdapter;
 import xeleciumlabs.musicflowlist.data.Track;
+import xeleciumlabs.musicflowlist.data.TrackList;
 
 public class FollowSelectorActivity extends Activity {
 
+    private ImageView mCurrentTrackAlbumArt;
+    private TextView mCurrentTrackTitle;
 
     private MusicService mService;
     private boolean musicBound = false;
     private int mSelectedTrack;
     private ArrayList<Track> mTracks;
     private Intent mIntent;
+    private ListView mTrackListView;
+    private ServiceConnection mConnection;
 
-    //connect to the service
-    private ServiceConnection musicConnection = new ServiceConnection(){
+//    //connect to the service
+//    private ServiceConnection musicConnection = new ServiceConnection(){
+//
+//        @Override
+//        public void onServiceConnected(ComponentName name, IBinder service) {
+//            MusicService.MusicBinder binder = (MusicService.MusicBinder)service;
+//            //get service
+//            mService = binder.getService();
+//            //pass list
+//            mService.setList(mTracks);
+//            musicBound = true;
+//        }
+//
+//        @Override
+//        public void onServiceDisconnected(ComponentName name) {
+//            musicBound = false;
+//        }
+//    };
 
-        @Override
-        public void onServiceConnected(ComponentName name, IBinder service) {
-            MusicService.MusicBinder binder = (MusicService.MusicBinder)service;
-            //get service
-            mService = binder.getService();
-            //pass list
-            mService.setList(mTracks);
-            musicBound = true;
-        }
+    private void connectService() {
+        mService = new MusicService();
+        mConnection = new ServiceConnection() {
+            @Override
+            public void onServiceConnected(ComponentName name, IBinder service) {
+                MusicService.MusicBinder binder = (MusicService.MusicBinder)service;
+                //get service
+                mService = binder.getService();
+                //pass list
+                mService.setList(mTracks);
+                musicBound = true;
+            }
 
-        @Override
-        public void onServiceDisconnected(ComponentName name) {
-            musicBound = false;
-        }
-    };
-
+            @Override
+            public void onServiceDisconnected(ComponentName name) {
+                musicBound = false;
+            }
+        };
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_follow_selector);
 
-        Intent intent = getIntent();
+        //Get the passed data
+        //Intent intent = getIntent();
+        Bundle bundle = getIntent().getExtras();
+        mSelectedTrack = bundle.getInt("TrackIndex", 0);
+        mTracks = bundle.getParcelableArrayList("Tracks");
 
-        mSelectedTrack = intent.getIntExtra("TrackIndex", 0);
-        mTracks = intent.getParcelableArrayListExtra("Tracks");
+        //Set up the Music service
+        connectService();
 
+        if(mIntent == null){
+            mIntent = new Intent(this, MusicService.class);
+            bindService(mIntent, mConnection, Context.BIND_AUTO_CREATE);
+            startService(mIntent);
+        }
+        //Setting up the ListView
+        mTrackListView = (ListView)findViewById(R.id.followTrackList);
+        FollowTrackAdapter adapter = new FollowTrackAdapter(this, mTracks);
+        mTrackListView.setAdapter(adapter);
+
+        //Not setting an empty view because we can't get to this activity with an empty list,
+        // as there's nothing to click
+
+        //mService.setSong(mSelectedTrack);
+        //mService.playSong();
     }
 
     //When the activity starts, we'll start the MusicService
     @Override
     protected void onStart() {
         super.onStart();
-        if(mIntent == null){
-            mIntent = new Intent(this, MusicService.class);
-            bindService(mIntent, musicConnection, Context.BIND_AUTO_CREATE);
-            startService(mIntent);
-        }
     }
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
