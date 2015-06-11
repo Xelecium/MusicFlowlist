@@ -20,20 +20,6 @@
             android:adjustViewBounds="true"
             />
 
-        <TextView
-            android:id="@+id/track_title"
-            android:text="Test text"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_toRightOf="@id/albumArt"
-            android:gravity="center_vertical"
-            android:paddingLeft="15dp"
-            android:textStyle="bold"
-            android:textSize="20sp"
-
-
-            />
-
         <CheckBox
             android:id="@+id/followCheckBox"
             android:layout_width="wrap_content"
@@ -43,6 +29,21 @@
             android:layout_alignParentEnd="true"
 
             />
+
+        <TextView
+            android:id="@+id/track_title"
+            android:text="Test text"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_toRightOf="@id/albumArt"
+            android:layout_toStartOf="@id/followCheckBox"
+            android:gravity="center_vertical"
+            android:paddingLeft="15dp"
+            android:textStyle="bold"
+            android:textSize="20sp"
+
+            />
+
 
 
     </RelativeLayout>
