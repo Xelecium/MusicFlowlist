@@ -7,19 +7,18 @@ import android.view.MenuItem;
 
 import xeleciumlabs.musicflowlist.R;
 
-
-public class TrackSelectorActivity extends ActionBarActivity {
+public class FollowSelectorActivity extends ActionBarActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_track_selector);
+        setContentView(R.layout.activity_follow_selector);
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_track_selector, menu);
+        getMenuInflater().inflate(R.menu.menu_follow_selector, menu);
         return true;
     }
 

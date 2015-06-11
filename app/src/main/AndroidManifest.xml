@@ -12,15 +12,20 @@
         <activity
             android:name=".activities.MainActivity"
             android:label="@string/app_name"
-            android:screenOrientation="portrait">
+            android:screenOrientation="portrait" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-
         </activity>
-        <service android:name="xeleciumlabs.musicflowlist.MusicService" />
+
+        <service android:name=".MusicService" />
+
+        <activity
+            android:name=".activities.FollowSelectorActivity"
+            android:label="@string/title_activity_follow_selector" >
+        </activity>
     </application>
 
 </manifest>
