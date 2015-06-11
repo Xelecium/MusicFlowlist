@@ -22,6 +22,18 @@
             android:adjustViewBounds="true"
             />
 
+        <ImageButton
+            android:id="@+id/playButton"
+            android:src="@drawable/play_button"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:scaleType="fitXY"
+            android:adjustViewBounds="true"
+            android:layout_alignParentEnd="true"
+            android:layout_marginRight="25dp"
+
+            />
+
         <TextView
             android:id="@+id/track_title"
             android:text="Test text"
@@ -35,17 +47,6 @@
             android:textSize="20sp"
             />
 
-        <ImageButton
-            android:id="@+id/playButton"
-            android:src="@drawable/play_button"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:scaleType="fitXY"
-            android:adjustViewBounds="true"
-            android:layout_alignParentEnd="true"
-            android:layout_marginRight="25dp"
-
-            />
         </RelativeLayout>
 
     <SeekBar

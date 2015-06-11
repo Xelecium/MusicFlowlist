@@ -1,7 +1,9 @@
 package xeleciumlabs.musicflowlist.adapters;
 
+import android.content.ContentResolver;
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.provider.MediaStore;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,6 +14,8 @@ import android.widget.LinearLayout;
 import android.widget.ListAdapter;
 import android.widget.TextView;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.ArrayList;
 
 import xeleciumlabs.musicflowlist.R;
@@ -22,12 +26,13 @@ import xeleciumlabs.musicflowlist.data.Track;
  */
 public class TrackAdapter extends BaseAdapter {
 
+    private Context mContext;
     private ArrayList<Track> mTracks;
     private LayoutInflater mInflater;
 
     //Base Constructor
     public TrackAdapter(Context context, ArrayList<Track> tracks) {
-
+        mContext = context;
         mTracks = tracks;
         mInflater = LayoutInflater.from(context);
     }
@@ -49,23 +54,50 @@ public class TrackAdapter extends BaseAdapter {
 
     public View getView(int position, View convertView, ViewGroup parent) {
 
-        LinearLayout layout = (LinearLayout)mInflater.inflate(R.layout.track_item, parent, false);
-        ImageView trackAlbumArt = (ImageView)layout.findViewById(R.id.albumArt);
-        TextView trackTitle = (TextView)layout.findViewById(R.id.track_title);
+        ViewHolder holder;
+
+        //if view is not yet populated
+        if (convertView == null) {
+            convertView = mInflater.inflate(R.layout.track_item, parent, false);
+
+            holder = new ViewHolder();
+            holder.albumArt = (ImageView)convertView.findViewById(R.id.albumArt);
+            holder.trackName = (TextView)convertView.findViewById(R.id.track_title);
+
+            convertView.setTag(holder);
+        }
+        else {
+            holder = (ViewHolder)convertView.getTag();
+        }
+
         Track currentTrack = mTracks.get(position);
 
-        trackAlbumArt.setImageBitmap(currentTrack.getAlbumArt());
-        trackTitle.setText(currentTrack.getTitle());
+        //A little work is needed to get the album art for each file
+        Bitmap bitmap = null;
+        try {
+            //Get the image associated with the album art identifier
+            bitmap = MediaStore.Images.Media.getBitmap(mContext.getContentResolver(), currentTrack.getAlbumArt());
+        } catch (FileNotFoundException exception) {
+            //If a track doesn't have an associated album art, we'll provide a default one
+            exception.printStackTrace();
+            bitmap = BitmapFactory.decodeResource(mContext.getResources(),
+                    R.drawable.empty_albumart);
 
-        layout.setTag(position);
-        return layout;
+        } catch (IOException e) {
+
+            e.printStackTrace();
+        }
+
+        holder.albumArt.setImageBitmap(bitmap);
+        holder.trackName.setText(currentTrack.getTitle());
+        
+        return convertView;
     }
 
     //Holds the Views containing the track items
     private static class ViewHolder {
         ImageView albumArt;
         TextView trackName;
-        ImageView playButton;
     }
 
 

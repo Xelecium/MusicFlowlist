@@ -1,18 +1,72 @@
 package xeleciumlabs.musicflowlist.activities;
 
+import android.app.Activity;
+import android.content.ComponentName;
+import android.content.Context;
+import android.content.Intent;
+import android.content.ServiceConnection;
+import android.os.IBinder;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 
-import xeleciumlabs.musicflowlist.R;
+import java.util.ArrayList;
 
-public class FollowSelectorActivity extends ActionBarActivity {
+import xeleciumlabs.musicflowlist.MusicService;
+import xeleciumlabs.musicflowlist.R;
+import xeleciumlabs.musicflowlist.data.Track;
+
+public class FollowSelectorActivity extends Activity {
+
+
+    private MusicService mService;
+    private boolean musicBound = false;
+    private int mSelectedTrack;
+    private ArrayList<Track> mTracks;
+    private Intent mIntent;
+
+    //connect to the service
+    private ServiceConnection musicConnection = new ServiceConnection(){
+
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            MusicService.MusicBinder binder = (MusicService.MusicBinder)service;
+            //get service
+            mService = binder.getService();
+            //pass list
+            mService.setList(mTracks);
+            musicBound = true;
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            musicBound = false;
+        }
+    };
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_follow_selector);
+
+        Intent intent = getIntent();
+
+        mSelectedTrack = intent.getIntExtra("TrackIndex", 0);
+        mTracks = intent.getParcelableArrayListExtra("Tracks");
+
+    }
+
+    //When the activity starts, we'll start the MusicService
+    @Override
+    protected void onStart() {
+        super.onStart();
+        if(mIntent == null){
+            mIntent = new Intent(this, MusicService.class);
+            bindService(mIntent, musicConnection, Context.BIND_AUTO_CREATE);
+            startService(mIntent);
+        }
     }
 
     @Override
@@ -35,5 +89,13 @@ public class FollowSelectorActivity extends ActionBarActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    //When the activity is closed, release resources
+    protected void onDestroy() {
+        stopService(mIntent);
+        mService = null;
+        super.onDestroy();
     }
 }
