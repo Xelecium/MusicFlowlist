@@ -13,10 +13,10 @@
         <ImageView
             android:id="@+id/albumArt"
             android:src="@drawable/empty_albumart"
-            android:layout_width="wrap_content"
+            android:layout_width="60dp"
             android:layout_height="match_parent"
             android:layout_alignParentLeft="true"
-            android:scaleType="fitStart"
+            android:scaleType="fitXY"
             android:adjustViewBounds="true"
             />
 
