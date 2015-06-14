@@ -73,23 +73,6 @@ public class TrackAdapter extends BaseAdapter {
 
         Track currentTrack = mTracks.get(position);
 
-        //A little work is needed to get the album art for each file
-//        Bitmap bitmap = null;
-//        BitmapFactory.Options options = new BitmapFactory.Options();
-//        try {
-//            //Get the image associated with the album art identifier
-//            bitmap = MediaStore.Images.Media.getBitmap(mContext.getContentResolver(), currentTrack.getAlbumArt());
-//        } catch (FileNotFoundException exception) {
-//            //If a track doesn't have an associated album art, we'll provide a default one
-//            exception.printStackTrace();
-//            bitmap = BitmapFactory.decodeResource(mContext.getResources(),
-//                    R.drawable.empty_albumart);
-//
-//        } catch (IOException e) {
-//
-//            e.printStackTrace();
-//        }
-
         new BitmapWorkerTask(holder.albumArt).execute(currentTrack.getAlbumArt());
         //holder.albumArt.setImageBitmap(bitmap);
         holder.trackName.setText(currentTrack.getTitle());
@@ -110,7 +93,6 @@ public class TrackAdapter extends BaseAdapter {
             // Use a WeakReference to ensure the ImageView can be garbage collected
             imageViewReference = new WeakReference<ImageView>(imageView);
         }
-
 
         // Decode image in background.
         @Override
