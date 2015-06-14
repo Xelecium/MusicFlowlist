@@ -26,6 +26,7 @@
             android:layout_toRightOf="@id/albumArt"
             android:gravity="center_vertical"
             android:paddingLeft="15dp"
+            android:singleLine="true"
             android:textStyle="bold"
             android:textSize="20sp"
 
