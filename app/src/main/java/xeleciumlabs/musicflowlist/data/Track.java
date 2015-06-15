@@ -18,7 +18,6 @@ public class Track implements Parcelable {
     private Uri mAlbumArt;
 
     private Uri mTrackUri;                      //URI of the track being referenced
-   //private ArrayList<Track> mFollowTracks;    //List of the tracks to follow the reference track
 
     public static final Creator<Track> CREATOR = new Creator<Track>() {
         @Override
@@ -71,18 +70,24 @@ public class Track implements Parcelable {
     public Uri getAlbumArt() {
         return mAlbumArt;
     }
-//    //Add a track to the list of follow tracks
-//    public void addFollowTrack(Track followTrack) {
-//        mFollowTracks.add(followTrack);
-//    }
-//
-//    //Remove a track from the list of follow tracks
-//    public void removeFollowTrack(Track followTrack) {
-//        mFollowTracks.remove(followTrack);
-//        if (mFollowTracks.isEmpty()) {
-//            //remove the track listing from the tracklist
-//        }
-//    }
+
+    //Add a track to the list of follow tracks
+    public void addFollowTrack(Track followTrack) {
+
+        //search the database for an item matching the current track
+        //if it doesn't exist
+            //create one
+
+        //add selected track as a followtrack for the current track
+    }
+
+    //Remove a track from the list of follow tracks
+    public void removeFollowTrack(Track followTrack) {
+
+        //remove the selected track as a followtrack for the current track
+        //if the current track has no more followtracks
+        //remove the current track from the database
+    }
 
     @Override
     public int describeContents() {

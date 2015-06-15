@@ -2,6 +2,7 @@ package xeleciumlabs.musicflowlist;
 
 import android.app.Service;
 import android.content.ContentUris;
+import android.content.Context;
 import android.content.Intent;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
@@ -10,6 +11,7 @@ import android.os.Binder;
 import android.os.IBinder;
 import android.util.Log;
 
+import java.io.IOException;
 import java.util.ArrayList;
 
 import xeleciumlabs.musicflowlist.data.Track;
@@ -28,9 +30,16 @@ public class MusicService extends Service implements
     //current position
     private int mIndex;
 
+
+    public void setContext(Context context) {
+        mContext = context;
+    }
+
+    private Context mContext;
+    private final IBinder musicBind = new MusicBinder();
+
     @Override
     public IBinder onBind(Intent arg0) {
-        // TODO Auto-generated method stub
         return musicBind;
     }
 
@@ -81,20 +90,19 @@ public class MusicService extends Service implements
         }
     }
 
-    private final IBinder musicBind = new MusicBinder();
-
-
     @Override
     public boolean onUnbind(Intent intent){
         mPlayer.stop();
         mPlayer.release();
         return false;
     }
-    public void playSong(){
+
+    public void playSong() {
+        //play a song
         if (mPlayer == null) {
             mPlayer = new MediaPlayer();
         }
-        //play a song
+
         mPlayer.reset();
         //get song
         Track playSong = mTracks.get(mIndex);
@@ -106,16 +114,13 @@ public class MusicService extends Service implements
                 currSong);
 
         try{
-            mPlayer.setDataSource(getApplicationContext(), trackUri);
+//            mPlayer.setDataSource(mContext, trackUri);
+            mPlayer.setDataSource(MusicFlowListApplication.getContext(), trackUri);
         }
         catch(Exception e){
             Log.e("MUSIC SERVICE", "Error setting data source", e);
         }
-
         mPlayer.prepareAsync();
-
-
-
     }
 
     public void setSong(int songIndex){

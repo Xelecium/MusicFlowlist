@@ -1,6 +1,7 @@
 package xeleciumlabs.musicflowlist.adapters;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
@@ -19,6 +20,7 @@ import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 
+import xeleciumlabs.musicflowlist.MusicService;
 import xeleciumlabs.musicflowlist.R;
 import xeleciumlabs.musicflowlist.data.Track;
 
@@ -64,6 +66,8 @@ public class FollowTrackAdapter extends BaseAdapter {
             holder = new ViewHolder();
             holder.albumArt = (ImageView)convertView.findViewById(R.id.albumArt);
             holder.trackName = (TextView)convertView.findViewById(R.id.track_title);
+            holder.checkbox = (CheckBox)convertView.findViewById(R.id.followCheckBox);
+            holder.checkbox.setOnClickListener(checkboxClickListener);
             holder.viewPosition = position;
             convertView.setTag(holder);      //Tag for the RecyclerView
 
@@ -130,4 +134,21 @@ public class FollowTrackAdapter extends BaseAdapter {
             }
         }
     }
+
+    View.OnClickListener checkboxClickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            //TODO: Implement the following
+            //if item isn't checked
+                //show the checkbox as checked
+                //add the selected track as a followtrack to the current track
+
+            //else (item is already checked)
+                //show the checkbox as unchecked
+                //remove the selected track as a followtrack for the current track
+                //if the current track has no more followtracks
+                    //remove the current track from the database
+        }
+    };
+
 }
