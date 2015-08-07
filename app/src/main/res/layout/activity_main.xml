@@ -95,7 +95,7 @@
             android:background="#FF55AADD"
             >
             <ImageView
-                android:id="@+id/currentSongAlbumArt"
+                android:id="@+id/currentTrackAlbumArt"
                 android:layout_width="wrap_content"
                 android:layout_height="60dp"
                 android:src="@drawable/empty_albumart"
@@ -104,8 +104,8 @@
                 android:layout_alignParentStart="true"/>
 
             <TextView
-                android:id="@+id/song_duration"
-                android:text="TEXTS"
+                android:id="@+id/currentTrackDuration"
+                android:text="55:55"
                 android:textSize="20sp"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
@@ -114,13 +114,33 @@
                 />
 
             <TextView
-                android:id="@+id/song_title"
-                android:text="Test text"
+                android:id="@+id/currentTrackTimeDivider"
+                android:text="/"
+                android:textSize="20sp"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_toLeftOf="@id/currentTrackDuration"
+                android:paddingRight="5dp"
+                />
+
+            <TextView
+                android:id="@+id/currentTrackTime"
+                android:text="0:00"
+                android:textSize="20sp"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_toLeftOf="@id/currentTrackTimeDivider"
+                android:paddingRight="5dp"
+                />
+
+            <TextView
+                android:id="@+id/currentTrackTitle"
+                android:text="Track Title"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:layout_alignParentTop="true"
-                android:layout_toEndOf="@id/currentSongAlbumArt"
-                android:layout_toStartOf="@id/song_duration"
+                android:layout_toEndOf="@id/currentTrackAlbumArt"
+                android:layout_toStartOf="@id/currentTrackTime"
                 android:gravity="center_vertical"
                 android:paddingLeft="15dp"
                 android:paddingRight="15dp"

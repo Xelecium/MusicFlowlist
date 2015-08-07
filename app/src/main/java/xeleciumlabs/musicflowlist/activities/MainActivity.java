@@ -18,8 +18,10 @@ import android.widget.TextView;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.concurrent.TimeUnit;
 
-import xeleciumlabs.musicflowlist.MusicController;
 import xeleciumlabs.musicflowlist.MusicService;
 import xeleciumlabs.musicflowlist.MusicService.MusicBinder;
 import xeleciumlabs.musicflowlist.R;
@@ -39,12 +41,9 @@ public class MainActivity extends Activity {
     private Intent playIntent;
     private boolean musicBound = false;
 
-    private boolean paused = false;
     private boolean playbackPaused = false;
 
-    private MusicController controller;
-
-    private LinearLayout mCurrentTrack;
+    private LinearLayout mPlayBackContainer;
 
     //Mediaplayer controls
     private ImageView mPlayPrevTrackButton;
@@ -56,14 +55,15 @@ public class MainActivity extends Activity {
     //Currently Playing Track
     private ImageView mCurrentTrackAlbumArt;
     private TextView mCurrentTrackTitle;
-    private TextView mCurrentTrackDuration;
+    private TextView mCurrentTrackTime;
+    private TextView mCurrentTrackLength;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        mCurrentTrack = (LinearLayout)findViewById(R.id.currentSong);
+        mPlayBackContainer = (LinearLayout)findViewById(R.id.currentSong);
 
         //Media Playback controller
         mPlayPrevTrackButton = (ImageView)findViewById(R.id.prevSong);
@@ -77,11 +77,12 @@ public class MainActivity extends Activity {
         mPlayNextTrackButton = (ImageView)findViewById(R.id.nextSong);
         mPlayNextTrackButton.setOnClickListener(playNext);
 
-        mCurrentTrackAlbumArt = (ImageView)findViewById(R.id.currentSongAlbumArt);
-        mCurrentTrackTitle = (TextView)findViewById(R.id.song_title);
-        mCurrentTrackDuration = (TextView)findViewById(R.id.song_duration);
+        mCurrentTrackAlbumArt = (ImageView)findViewById(R.id.currentTrackAlbumArt);
+        mCurrentTrackTitle = (TextView)findViewById(R.id.currentTrackTitle);
+        mCurrentTrackTime = (TextView)findViewById(R.id.currentTrackTime);
+        mCurrentTrackLength = (TextView)findViewById(R.id.currentTrackDuration);
 
-        mCurrentTrack.setVisibility(GONE);
+        mPlayBackContainer.setVisibility(GONE);
 
         //Associate the ListView
         mTrackListView = (ListView)findViewById(R.id.trackList);
@@ -150,7 +151,6 @@ public class MainActivity extends Activity {
 //            intent.putExtras(bundle);
 //            startActivity(intent);
 
-            //mMusicService.setSong(Integer.parseInt(view.getTag().toString()));
             mMusicService.setSong(position);
             mMusicService.playSong();
 
@@ -158,7 +158,9 @@ public class MainActivity extends Activity {
                 playbackPaused = false;
             }
 
-            mCurrentTrack.setVisibility(VISIBLE);
+            mPlayBackContainer.setVisibility(VISIBLE);
+
+            updateTrackTime();
         }
     };
 
@@ -170,7 +172,7 @@ public class MainActivity extends Activity {
             if (playbackPaused) {
                 playbackPaused = false;
             }
-            mCurrentTrack.setVisibility(View.VISIBLE);
+            mPlayBackContainer.setVisibility(View.VISIBLE);
         }
     };
 
@@ -225,14 +227,69 @@ public class MainActivity extends Activity {
         public void onClick(View v) {
             mMusicService.playNext();
             if (playbackPaused) {
-//                setController();
                 playbackPaused = false;
             }
-            mCurrentTrack.setVisibility(View.VISIBLE);
-            //controller.show(0);
+            mPlayBackContainer.setVisibility(View.VISIBLE);
         }
     };
 
+    public void updateTrackTime() {
+        if (mMusicService != null) {
+            final Timer timer = new Timer();
+            timer.scheduleAtFixedRate(new TimerTask() {
+
+                @Override
+                public void run() {
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            if (mMusicService != null) {
+                                mCurrentTrackTime.post(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        String trackTime = timeParse(mMusicService.getPosn());
+                                        String trackLength = timeParse(mMusicService.getDur());
+                                        mCurrentTrackTime.setText(trackTime);
+                                        mCurrentTrackLength.setText(trackLength);
+                                    }
+                                });
+                            }
+                            else {
+                                timer.cancel();
+                                timer.purge();
+                            }
+                        }
+                    });
+                }
+            }, 0, 1000);
+        }
+    }
+
+    public String timeParse(int milliTime) {
+        //if time provided is less than 10 minutes
+        if (milliTime < (10 * 60 * 1000)) {
+            return String.format("%01d:%02d",
+                    TimeUnit.MILLISECONDS.toMinutes(milliTime),
+                    TimeUnit.MILLISECONDS.toSeconds(milliTime) -
+                            TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(milliTime)));
+        }
+
+        //if time provided is less than 1 hour
+        if (milliTime < (60 * 60 * 1000)) {
+            return String.format("%02d:%02d",
+                    TimeUnit.MILLISECONDS.toMinutes(milliTime) -
+                            TimeUnit.HOURS.toMinutes(TimeUnit.MILLISECONDS.toHours(milliTime)),
+                    TimeUnit.MILLISECONDS.toSeconds(milliTime) -
+                            TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(milliTime)));
+        }
+
+        return String.format("%d:%02d:%02d",
+                TimeUnit.MILLISECONDS.toHours(milliTime),
+                TimeUnit.MILLISECONDS.toMinutes(milliTime) -
+                        TimeUnit.HOURS.toMinutes(TimeUnit.MILLISECONDS.toHours(milliTime)),
+                TimeUnit.MILLISECONDS.toSeconds(milliTime) -
+                        TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(milliTime)));
+    }
 
 
     //TODO: Getting Started
