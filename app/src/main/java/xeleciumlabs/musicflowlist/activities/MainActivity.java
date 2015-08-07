@@ -10,6 +10,8 @@ import android.os.IBinder;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -42,10 +44,44 @@ public class MainActivity extends Activity {
 
     private MusicController controller;
 
+    private LinearLayout mCurrentTrack;
+
+    //Mediaplayer controls
+    private ImageView mPlayPrevTrackButton;
+    private ImageView mPlayRewindButton;
+    private ImageView mPlayPauseButton;
+    private ImageView mPlayForwardButton;
+    private ImageView mPlayNextTrackButton;
+
+    //Currently Playing Track
+    private ImageView mCurrentTrackAlbumArt;
+    private TextView mCurrentTrackTitle;
+    private TextView mCurrentTrackDuration;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        mCurrentTrack = (LinearLayout)findViewById(R.id.currentSong);
+
+        //Media Playback controller
+        mPlayPrevTrackButton = (ImageView)findViewById(R.id.prevSong);
+        mPlayPrevTrackButton.setOnClickListener(playPrev);
+        mPlayRewindButton = (ImageView)findViewById(R.id.rewind);
+        mPlayRewindButton.setOnClickListener(rewind);
+        mPlayPauseButton = (ImageView)findViewById(R.id.play);
+        mPlayPauseButton.setOnClickListener(playPause);
+        mPlayForwardButton = (ImageView)findViewById(R.id.forward);
+        mPlayForwardButton.setOnClickListener(forward);
+        mPlayNextTrackButton = (ImageView)findViewById(R.id.nextSong);
+        mPlayNextTrackButton.setOnClickListener(playNext);
+
+        mCurrentTrackAlbumArt = (ImageView)findViewById(R.id.currentSongAlbumArt);
+        mCurrentTrackTitle = (TextView)findViewById(R.id.song_title);
+        mCurrentTrackDuration = (TextView)findViewById(R.id.song_duration);
+
+        mCurrentTrack.setVisibility(GONE);
 
         //Associate the ListView
         mTrackListView = (ListView)findViewById(R.id.trackList);
@@ -121,8 +157,82 @@ public class MainActivity extends Activity {
             if (playbackPaused) {
                 playbackPaused = false;
             }
+
+            mCurrentTrack.setVisibility(VISIBLE);
         }
     };
+
+    //Play previous track
+    OnClickListener playPrev = new OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            mMusicService.playPrev();
+            if (playbackPaused) {
+                playbackPaused = false;
+            }
+            mCurrentTrack.setVisibility(View.VISIBLE);
+        }
+    };
+
+    //Rewind 10 seconds
+    OnClickListener rewind = new OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            int currentPosition = mMusicService.getPosn();
+            int seekPosition = currentPosition - (10 * 1000);
+
+            if (seekPosition < 0) {
+                seekPosition = 0;
+            }
+
+            mMusicService.seek(seekPosition);
+        }
+    };
+
+    //Toggle between play and pause
+    OnClickListener playPause = new OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            if (playbackPaused) {
+                mMusicService.go();
+                mPlayPauseButton.setImageDrawable(getResources().getDrawable(R.drawable.pause));
+            }
+            else {
+                mMusicService.pausePlayer();
+                mPlayPauseButton.setImageDrawable(getResources().getDrawable(R.drawable.play));
+            }
+            playbackPaused = !playbackPaused;
+        }
+    };
+
+    //Forward 10 seconds
+    OnClickListener forward = new OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            int currentPosition = mMusicService.getPosn();
+            int seekPosition = currentPosition + (10 * 1000);
+            if (seekPosition > mMusicService.getDur()) {
+                seekPosition = mMusicService.getDur();
+            }
+
+            mMusicService.seek(seekPosition);
+        }
+    };
+
+    //Play next track
+    OnClickListener playNext = new OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            mMusicService.playNext();
+            if (playbackPaused) {
+//                setController();
+                playbackPaused = false;
+            }
+            mCurrentTrack.setVisibility(View.VISIBLE);
+            //controller.show(0);
+        }
+    };
+
 
 
     //TODO: Getting Started
