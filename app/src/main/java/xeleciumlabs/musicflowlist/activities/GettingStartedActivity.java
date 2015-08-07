@@ -1,6 +1,6 @@
 package xeleciumlabs.musicflowlist.activities;
 
-import android.support.v7.app.ActionBarActivity;
+import android.app.Activity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -8,7 +8,7 @@ import android.view.MenuItem;
 import xeleciumlabs.musicflowlist.R;
 
 
-public class GettingStartedActivity extends ActionBarActivity {
+public class GettingStartedActivity extends Activity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

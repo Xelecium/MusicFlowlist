@@ -1,7 +1,6 @@
 package xeleciumlabs.musicflowlist.adapters;
 
 import android.content.Context;
-import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
@@ -20,7 +19,6 @@ import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 
-import xeleciumlabs.musicflowlist.MusicService;
 import xeleciumlabs.musicflowlist.R;
 import xeleciumlabs.musicflowlist.data.Track;
 

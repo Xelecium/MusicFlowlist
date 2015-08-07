@@ -3,29 +3,140 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 tools:context="xeleciumlabs.musicflowlist.activities.MainActivity"
-                style="@style/background">
+                style="@style/background"
+                android:background="#FF55AADD"
+    >
 
-    <RelativeLayout
-        android:id="@+id/titleBar"
-        android:background="#dddddd"
+    <LinearLayout
+        android:id="@+id/currentSong"
+        android:layout_alignParentBottom="true"
         android:layout_width="match_parent"
-        android:layout_height="@dimen/title_bar_height">
-
-        <TextView
-            android:text="Starting Track"
-            android:textSize="28sp"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingTop="5dp"
+        >
+        <LinearLayout
+            android:id="@+id/playControls"
+            android:layout_height="wrap_content"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:gravity="center_vertical"
-            android:paddingLeft="16dp"
+            android:orientation="horizontal"
+            android:background="#FFDDDDDD"
+            >
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/prevSong"
+                android:src="@drawable/prev"
+                android:scaleType="fitXY"
+                android:adjustViewBounds="true"
+                android:layout_weight="1"
+                android:paddingLeft="10dp"
+                android:paddingRight="10dp"
+                />
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/rewind"
+                android:src="@drawable/rewind"
+                android:scaleType="fitXY"
+                android:adjustViewBounds="true"
+                android:layout_weight="1"
+                android:paddingLeft="10dp"
+                android:paddingRight="10dp"
+                />
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/play"
+                android:src="@drawable/pause"
+                android:scaleType="fitXY"
+                android:adjustViewBounds="true"
+                android:layout_weight="1"
+                android:paddingLeft="10dp"
+                android:paddingRight="10dp"
+                />
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/forward"
+                android:src="@drawable/forward"
+                android:scaleType="fitXY"
+                android:adjustViewBounds="true"
+                android:layout_weight="1"
+                android:paddingLeft="10dp"
+                android:paddingRight="10dp"
+                />
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/nextSong"
+                android:src="@drawable/next"
+                android:scaleType="fitXY"
+                android:adjustViewBounds="true"
+                android:layout_weight="1"
+                android:paddingLeft="10dp"
+                android:paddingRight="10dp"
+                />
+        </LinearLayout>
+
+        <SeekBar
+            android:id="@+id/songSeekBar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:thumb="@drawable/play"
+            android:background="#FFBBBBBB"
+            android:paddingTop="5dp"
             />
-    </RelativeLayout>
+        <RelativeLayout
+            android:id="@+id/songHolder"
+            android:layout_width="wrap_content"
+            android:layout_height="30dp"
+            android:paddingTop="5dp"
+            android:background="#FF55AADD"
+            >
+            <ImageView
+                android:id="@+id/currentSongAlbumArt"
+                android:layout_width="wrap_content"
+                android:layout_height="60dp"
+                android:src="@drawable/empty_albumart"
+                android:scaleType="fitXY"
+                android:adjustViewBounds="true"
+                android:layout_alignParentStart="true"/>
+
+            <TextView
+                android:id="@+id/song_duration"
+                android:text="TEXTS"
+                android:textSize="20sp"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_alignParentEnd="true"
+                android:paddingRight="15dp"
+                />
+
+            <TextView
+                android:id="@+id/song_title"
+                android:text="Test text"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_alignParentTop="true"
+                android:layout_toEndOf="@id/currentSongAlbumArt"
+                android:layout_toStartOf="@id/song_duration"
+                android:gravity="center_vertical"
+                android:paddingLeft="15dp"
+                android:paddingRight="15dp"
+                android:singleLine="true"
+                android:textStyle="bold"
+                android:textSize="20sp"
+                />
+        </RelativeLayout>
+    </LinearLayout>
+
     <ListView
         android:id="@+id/trackList"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:rowHeight="@dimen/track_item_height"
-        android:layout_below="@id/titleBar"
+        android:layout_above="@id/currentSong"
         />
 
     <TextView
@@ -38,7 +149,6 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:paddingTop="15dp"
-        android:layout_below="@id/titleBar"
 
         />
 

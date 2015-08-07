@@ -1,8 +1,12 @@
 package xeleciumlabs.musicflowlist.activities;
 
 import android.app.Activity;
+import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
@@ -13,6 +17,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 
+import xeleciumlabs.musicflowlist.MusicController;
+import xeleciumlabs.musicflowlist.MusicService;
+import xeleciumlabs.musicflowlist.MusicService.MusicBinder;
 import xeleciumlabs.musicflowlist.R;
 import xeleciumlabs.musicflowlist.adapters.TrackAdapter;
 import xeleciumlabs.musicflowlist.data.Track;
@@ -26,6 +33,15 @@ public class MainActivity extends Activity {
     private ArrayList<Track> mTracks;       //List of tracks on the device
     private ListView mTrackListView;            //ListView containing the list of tracks
 
+    private MusicService mMusicService;
+    private Intent playIntent;
+    private boolean musicBound = false;
+
+    private boolean paused = false;
+    private boolean playbackPaused = false;
+
+    private MusicController controller;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -34,6 +50,7 @@ public class MainActivity extends Activity {
         //Associate the ListView
         mTrackListView = (ListView)findViewById(R.id.trackList);
         //Initialize and populate the list of tracks on the device
+
         mTracks = new ArrayList<>();
         TrackList.getTrackList(this, mTracks);
 
@@ -54,19 +71,59 @@ public class MainActivity extends Activity {
         mTrackListView.setEmptyView(noMusic);
     }
 
+    private ServiceConnection musicConnection = new ServiceConnection(){
+
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            MusicBinder binder = (MusicBinder)service;
+            //get service
+            mMusicService = binder.getService();
+            //pass list
+            mMusicService.setList(mTracks);
+            musicBound = true;
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            musicBound = false;
+        }
+    };
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        if(playIntent==null){
+            playIntent = new Intent(this, MusicService.class);
+            bindService(playIntent, musicConnection, Context.BIND_AUTO_CREATE);
+            startService(playIntent);
+        }
+    }
+
+
+
+
     OnItemClickListener trackClickListener = new OnItemClickListener() {
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-            //Intent to go to the Follow Selector Activity
-            Intent intent = new Intent(MainActivity.this, FollowSelectorActivity.class);
-            //Pass in the track that was tapped
-            Bundle bundle = new Bundle();
-            bundle.putInt("TrackIndex", position);
-            bundle.putParcelableArrayList("Tracks", mTracks);
-            intent.putExtras(bundle);
-            startActivity(intent);
+//            //Intent to go to the Follow Selector Activity
+//            Intent intent = new Intent(MainActivity.this, FollowSelectorActivity.class);
+//            //Pass in the track that was tapped
+//            Bundle bundle = new Bundle();
+//            bundle.putInt("TrackIndex", position);
+//            bundle.putParcelableArrayList("Tracks", mTracks);
+//            intent.putExtras(bundle);
+//            startActivity(intent);
+
+            //mMusicService.setSong(Integer.parseInt(view.getTag().toString()));
+            mMusicService.setSong(position);
+            mMusicService.playSong();
+
+            if (playbackPaused) {
+                playbackPaused = false;
+            }
         }
     };
+
 
     //TODO: Getting Started
     //Set up a brief tutorial on how the app works, with a flag in the application

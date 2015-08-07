@@ -12,9 +12,9 @@ import android.os.Bundle;
 import android.provider.MediaStore;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.ImageView;
 import android.widget.ListView;
-import android.widget.MediaController;
 import android.widget.MediaController.MediaPlayerControl;
 import android.widget.TextView;
 
@@ -22,7 +22,9 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 
+import xeleciumlabs.musicflowlist.MusicController;
 import xeleciumlabs.musicflowlist.MusicService;
+import xeleciumlabs.musicflowlist.MusicService.MusicBinder;
 import xeleciumlabs.musicflowlist.R;
 import xeleciumlabs.musicflowlist.adapters.FollowTrackAdapter;
 import xeleciumlabs.musicflowlist.data.Track;
@@ -32,13 +34,18 @@ public class FollowSelectorActivity extends Activity implements MediaPlayerContr
     private ImageView mCurrentTrackAlbumArt;
     private TextView mCurrentTrackTitle;
 
-    private MusicService mService;
+    private MusicService mMusicService;
     private Intent mPlayIntent;
     private boolean musicBound = false;
     private int mSelectedTrack;
     private ArrayList<Track> mTracks;
     private ListView mTrackListView;
     private ServiceConnection mConnection;
+
+    private boolean paused = false;
+    private boolean playbackPaused = false;
+
+    private MusicController mMusicController;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,8 +67,9 @@ public class FollowSelectorActivity extends Activity implements MediaPlayerContr
             startService(mPlayIntent);
         }
 
-//        mService.setContext(this);
-        mService.setList(mTracks);
+        mMusicService.setList(mTracks);
+
+        setController();
 
         //Setting up the ListView
         mTrackListView = (ListView)findViewById(R.id.followTrackList);
@@ -101,8 +109,8 @@ public class FollowSelectorActivity extends Activity implements MediaPlayerContr
         //Not setting an empty view because we can't get to this activity with an empty list,
         // as there's nothing to click
 
-        mService.setSong(mSelectedTrack);
-        mService.playSong();
+        mMusicService.setSong(mSelectedTrack);
+        mMusicService.playSong();
     }
 
     //When the activity starts, we'll start the MusicService
@@ -116,16 +124,40 @@ public class FollowSelectorActivity extends Activity implements MediaPlayerContr
         }
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (paused) {
+            setController();
+            paused = false;
+        }
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        mMusicController.hide();
+    }
+
+    @Override
+    //When the activity is closed, release resources
+    protected void onDestroy() {
+        stopService(mPlayIntent);
+        mMusicService = null;
+        super.onDestroy();
+    }
+
+
     private void connectService() {
-        mService = new MusicService();
+        mMusicService = new MusicService();
         mConnection = new ServiceConnection() {
             @Override
             public void onServiceConnected(ComponentName name, IBinder service) {
-                MusicService.MusicBinder binder = (MusicService.MusicBinder)service;
+                MusicBinder binder = (MusicBinder)service;
                 //get service
-                mService = binder.getService();
+                mMusicService = binder.getService();
                 //pass list
-                mService.setList(mTracks);
+                mMusicService.setList(mTracks);
                 musicBound = true;
             }
             @Override
@@ -135,65 +167,90 @@ public class FollowSelectorActivity extends Activity implements MediaPlayerContr
         };
     }
 
+    private void setController() {
+        //set up the controller
+        mMusicController = new MusicController(this);
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_follow_selector, menu);
-        return true;
+        mMusicController.setPrevNextListeners(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                playNext();
+            }
+        }, new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                playPrev();
+            }
+        });
+
+        mMusicController.setMediaPlayer(this);
+        mMusicController.setAnchorView(findViewById(R.id.trackList));
+        mMusicController.setEnabled(true);
     }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
-
-    @Override
-    //When the activity is closed, release resources
-    protected void onDestroy() {
-        stopService(mPlayIntent);
-        mService = null;
-        super.onDestroy();
-    }
 
     //Mediaplayer methods
     @Override
     public void start() {
-
+        mMusicService.go();
     }
 
     @Override
     public void pause() {
+        mMusicService.pausePlayer();
+        playbackPaused = true;
+    }
 
+    private void playNext() {
+        //play the next track
+        mMusicService.playNext();
+        if (playbackPaused) {
+            setController();
+            playbackPaused = false;
+        }
+        mMusicController.show();
+    }
+
+    private void playPrev() {
+        //play the previous track
+        mMusicService.playPrev();
+        if (playbackPaused) {
+            setController();
+            playbackPaused = false;
+        }
+        mMusicController.show(0);
     }
 
     @Override
     public int getDuration() {
-        return 0;
+        if (mMusicService != null && musicBound && mMusicService.isPng()) {
+            return mMusicService.getDur();
+        }
+        else {
+            return 0;
+        }
     }
 
     @Override
     public int getCurrentPosition() {
-        return 0;
+        if (mMusicService != null && musicBound && mMusicService.isPng()) {
+            return mMusicService.getPosn();
+        }
+        else {
+            return 0;
+        }
     }
 
     @Override
     public void seekTo(int pos) {
-
+        mMusicService.seek(pos);
     }
 
     @Override
     public boolean isPlaying() {
+        if (mMusicService != null && musicBound) {
+            return mMusicService.isPng();
+        }
         return false;
     }
 
@@ -204,7 +261,7 @@ public class FollowSelectorActivity extends Activity implements MediaPlayerContr
 
     @Override
     public boolean canPause() {
-        return false;
+        return true;
     }
 
     @Override
