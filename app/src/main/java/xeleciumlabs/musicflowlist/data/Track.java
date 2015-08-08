@@ -15,6 +15,7 @@ public class Track implements Parcelable {
     private long mId;
     private String mTitle;
     private String mArtist;
+    private String mAlbum;
     private Uri mAlbumArt;
 
     private Uri mTrackUri;                      //URI of the track being referenced
@@ -31,10 +32,11 @@ public class Track implements Parcelable {
         }
     };
 
-    public Track(long trackId, String trackTitle, String trackArtist, Uri trackAlbumArt) {
+    public Track(long trackId, String trackTitle, String trackArtist, String trackAlbum, Uri trackAlbumArt) {
         mId = trackId;
         mTitle = trackTitle;
         mArtist = trackArtist;
+        mAlbum = trackAlbum;
         mAlbumArt = trackAlbumArt;
     }
 
@@ -43,6 +45,7 @@ public class Track implements Parcelable {
         mId = in.readLong();
         mTitle = in.readString();
         mArtist = in.readString();
+        mAlbum = in.readString();
         mAlbumArt = Uri.parse(in.readString());
     }
 
@@ -52,6 +55,7 @@ public class Track implements Parcelable {
         dest.writeLong(mId);
         dest.writeString(mTitle);
         dest.writeString(mArtist);
+        dest.writeString(mAlbum);
         dest.writeString(mAlbumArt.toString());
     }
 
@@ -65,6 +69,10 @@ public class Track implements Parcelable {
 
     public String getArtist() {
         return mArtist;
+    }
+
+    public String getAlbum() {
+        return mAlbum;
     }
 
     public Uri getAlbumArt() {

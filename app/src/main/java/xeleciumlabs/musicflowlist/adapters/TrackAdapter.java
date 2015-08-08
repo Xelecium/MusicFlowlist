@@ -61,8 +61,9 @@ public class TrackAdapter extends BaseAdapter {
             convertView = mInflater.inflate(R.layout.track_item, parent, false);
 
             holder = new ViewHolder();
-            holder.albumArt = (ImageView)convertView.findViewById(R.id.albumArt);
-            holder.trackName = (TextView)convertView.findViewById(R.id.track_title);
+            //holder.albumArt = (ImageView)convertView.findViewById(R.id.albumArt);
+            holder.trackTitle = (TextView)convertView.findViewById(R.id.track_title);
+            holder.trackAlbum = (TextView)convertView.findViewById(R.id.track_album);
             holder.viewPosition = position;
             convertView.setTag(holder);      //Tag for the RecyclerView
 
@@ -73,16 +74,25 @@ public class TrackAdapter extends BaseAdapter {
 
         Track currentTrack = mTracks.get(position);
 
-        new BitmapWorkerTask(holder.albumArt).execute(currentTrack.getAlbumArt());
-        //holder.albumArt.setImageBitmap(bitmap);
-        holder.trackName.setText(currentTrack.getTitle());
+        //new BitmapWorkerTask(holder.albumArt).execute(currentTrack.getAlbumArt());
+//        Uri albumArt = currentTrack.getAlbumArt();
+//        if (albumArt == null) {
+//            holder.albumArt.setImageDrawable(mContext.getResources().getDrawable(R.drawable.empty_albumart));
+//        }
+//        else {
+//            holder.albumArt.setImageURI(currentTrack.getAlbumArt());
+//        }
+//        holder.albumArt.setImageBitmap(bitmap);
+        holder.trackTitle.setText(currentTrack.getTitle());
+        holder.trackAlbum.setText(currentTrack.getAlbum());
         return convertView;
     }
 
     //Holds the Views containing the track items
     private static class ViewHolder {
-        ImageView albumArt;
-        TextView trackName;
+        //ImageView albumArt;
+        TextView trackTitle;
+        TextView trackAlbum;
         int viewPosition;
     }
 

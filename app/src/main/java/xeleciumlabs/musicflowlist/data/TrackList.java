@@ -32,6 +32,8 @@ public abstract class TrackList {
                         (MediaStore.Audio.Media.TITLE);
                 int artistColumn = cursor.getColumnIndex
                         (MediaStore.Audio.Media.ARTIST);
+                int albumColumn = cursor.getColumnIndex
+                        (MediaStore.Audio.Media.ALBUM);
                 int albumArtColumn = cursor.getColumnIndex
                         (MediaStore.Audio.Media.ALBUM_ID);
 
@@ -42,14 +44,14 @@ public abstract class TrackList {
                     long thisId = cursor.getLong(idColumn);
                     String thisTitle = cursor.getString(titleColumn);
                     String thisArtist = cursor.getString(artistColumn);
+                    String thisAlbum = cursor.getString(albumColumn);
                     long thisAlbumArt = cursor.getLong(albumArtColumn);
 
                     Uri art = Uri.parse("content://media/external/audio/albumart");
                     art = ContentUris.withAppendedId(art, thisAlbumArt);
 
-
                     //Add the data to the list
-                    tracks.add(new Track(thisId, thisTitle, thisArtist, art));
+                    tracks.add(new Track(thisId, thisTitle, thisArtist, thisAlbum, art));
                 }
                 while (cursor.moveToNext());
             }

@@ -14,6 +14,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.SeekBar;
+import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -40,7 +41,6 @@ public class MainActivity extends Activity {
 
     private MusicService mMusicService;
     private Intent playIntent;
-    private boolean musicBound = false;
 
     private boolean playbackPaused = false;
     private boolean seeking = false;
@@ -124,12 +124,10 @@ public class MainActivity extends Activity {
             mMusicService = binder.getService();
             //pass list
             mMusicService.setList(mTracks);
-            musicBound = true;
         }
 
         @Override
         public void onServiceDisconnected(ComponentName name) {
-            musicBound = false;
         }
     };
 
@@ -240,7 +238,7 @@ public class MainActivity extends Activity {
         }
     };
 
-    SeekBar.OnSeekBarChangeListener seekBar = new SeekBar.OnSeekBarChangeListener() {
+    OnSeekBarChangeListener seekBar = new OnSeekBarChangeListener() {
         int newPosition;
         @Override
         public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {

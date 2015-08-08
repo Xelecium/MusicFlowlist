@@ -8,32 +8,51 @@
         android:layout_height="@dimen/track_item_height"
         android:background="#FF55AADD"
         >
+        <!--
         <ImageView
             android:id="@+id/albumArt"
             android:src="@drawable/empty_albumart"
-            android:layout_width="60dp"
+            android:layout_width="@dimen/track_item_height"
             android:layout_height="match_parent"
             android:layout_alignParentLeft="true"
             android:scaleType="fitXY"
             android:adjustViewBounds="true"
             />
-
-        <TextView
-            android:id="@+id/track_title"
-            android:text="Test text"
+        -->
+        <LinearLayout
+            android:layout_toRightOf="@id/albumArt"
+            android:orientation="vertical"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:layout_toRightOf="@id/albumArt"
-            android:gravity="center_vertical"
-            android:paddingLeft="15dp"
-            android:singleLine="true"
-            android:textStyle="bold"
-            android:textSize="20sp"
+            android:layout_marginTop="3dp"
+            android:layout_marginBottom="3dp"
+            >
+
+            <TextView
+                android:id="@+id/track_title"
+                android:text="Track Title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:paddingLeft="15dp"
+                android:singleLine="true"
+                android:textStyle="bold"
+                android:textSize="18sp"
 
 
-            />
+                />
+            <TextView
+                android:id="@+id/track_album"
+                android:text="Track Album"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingLeft="45dp"
+                android:singleLine="true"
+                android:textSize="14sp"
+                />
 
 
+        </LinearLayout>
 
     </RelativeLayout>
 </LinearLayout>
