@@ -13,6 +13,7 @@ import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.SeekBar;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -42,6 +43,7 @@ public class MainActivity extends Activity {
     private boolean musicBound = false;
 
     private boolean playbackPaused = false;
+    private boolean seeking = false;
 
     private LinearLayout mPlayBackContainer;
 
@@ -51,6 +53,8 @@ public class MainActivity extends Activity {
     private ImageView mPlayPauseButton;
     private ImageView mPlayForwardButton;
     private ImageView mPlayNextTrackButton;
+
+    private SeekBar mPlaySeekBar;
 
     //Currently Playing Track
     private ImageView mCurrentTrackAlbumArt;
@@ -76,6 +80,9 @@ public class MainActivity extends Activity {
         mPlayForwardButton.setOnClickListener(forward);
         mPlayNextTrackButton = (ImageView)findViewById(R.id.nextSong);
         mPlayNextTrackButton.setOnClickListener(playNext);
+
+        mPlaySeekBar = (SeekBar)findViewById(R.id.songSeekBar);
+        mPlaySeekBar.setOnSeekBarChangeListener(seekBar);
 
         mCurrentTrackAlbumArt = (ImageView)findViewById(R.id.currentTrackAlbumArt);
         mCurrentTrackTitle = (TextView)findViewById(R.id.currentTrackTitle);
@@ -233,6 +240,30 @@ public class MainActivity extends Activity {
         }
     };
 
+    SeekBar.OnSeekBarChangeListener seekBar = new SeekBar.OnSeekBarChangeListener() {
+        int newPosition;
+        @Override
+        public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+            if (fromUser) {
+                newPosition = progress;
+            }
+        }
+
+        @Override
+        public void onStartTrackingTouch(SeekBar seekBar) {
+            //set flag that seeking is happening
+            seeking = true;
+        }
+
+        @Override
+        public void onStopTrackingTouch(SeekBar seekBar) {
+            //unset flag that seeking is happening
+            seeking = false;
+            //update musicservice to new progress location
+            mMusicService.seek(newPosition);
+        }
+    };
+
     public void updateTrackTime() {
         if (mMusicService != null) {
             final Timer timer = new Timer();
@@ -247,10 +278,21 @@ public class MainActivity extends Activity {
                                 mCurrentTrackTime.post(new Runnable() {
                                     @Override
                                     public void run() {
-                                        String trackTime = timeParse(mMusicService.getPosn());
-                                        String trackLength = timeParse(mMusicService.getDur());
-                                        mCurrentTrackTime.setText(trackTime);
-                                        mCurrentTrackLength.setText(trackLength);
+                                        if (!seeking) {
+                                            int position = mMusicService.getPosn();
+                                            int duration = mMusicService.getDur();
+                                            String trackTime = timeParse(position);
+                                            String trackLength = timeParse(duration);
+                                            mCurrentTrackTime.setText(trackTime);
+                                            mCurrentTrackLength.setText(trackLength);
+                                            mPlaySeekBar.setMax(duration);
+                                            mPlaySeekBar.setProgress(position);
+                                        }
+                                        else {
+                                            int position = mPlaySeekBar.getProgress();
+                                            String seekTime = timeParse(position);
+                                            mCurrentTrackTime.setText(seekTime);
+                                        }
                                     }
                                 });
                             }
