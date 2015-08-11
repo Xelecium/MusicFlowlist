@@ -1,12 +1,19 @@
 package xeleciumlabs.musicflowlist.activities;
 
 import android.app.Activity;
+import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.ServiceConnection;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.media.MediaPlayer;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.provider.MediaStore;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
@@ -17,6 +24,8 @@ import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -141,8 +150,39 @@ public class MainActivity extends Activity {
         }
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        registerReceiver(updateTrackReceiver, new IntentFilter(MusicService.UPDATE_TRACK));
+    }
 
+    BroadcastReceiver updateTrackReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            int trackID = intent.getIntExtra("trackID", -1);
+            Track currentTrack = mTracks.get(trackID);
+            String trackTitle = currentTrack.getTitle();
+            Uri trackAlbumArt = currentTrack.getAlbumArt();
 
+            Bitmap bitmap = null;
+            try {
+                //Get the image associated with the album art identifier
+                bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), trackAlbumArt);
+            } catch (FileNotFoundException exception) {
+                //If a track doesn't have an associated album art, we'll provide a default one
+                exception.printStackTrace();
+                bitmap = BitmapFactory.decodeResource(getResources(),
+                        R.drawable.empty_albumart);
+
+            } catch (IOException e) {
+
+                e.printStackTrace();
+            }
+
+            mCurrentTrackTitle.setText(trackTitle);
+            mCurrentTrackAlbumArt.setImageBitmap(bitmap);
+        }
+    };
 
     OnItemClickListener trackClickListener = new OnItemClickListener() {
         @Override
@@ -272,7 +312,7 @@ public class MainActivity extends Activity {
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            if (mMusicService != null) {
+                            if (mMusicService != null && !playbackPaused) {
                                 mCurrentTrackTime.post(new Runnable() {
                                     @Override
                                     public void run() {
@@ -330,7 +370,6 @@ public class MainActivity extends Activity {
                 TimeUnit.MILLISECONDS.toSeconds(milliTime) -
                         TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(milliTime)));
     }
-
 
     //TODO: Getting Started
     //Set up a brief tutorial on how the app works, with a flag in the application

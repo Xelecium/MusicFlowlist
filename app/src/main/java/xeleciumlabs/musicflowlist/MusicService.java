@@ -10,9 +10,11 @@ import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Binder;
+import android.os.Handler;
 import android.os.IBinder;
 import android.os.PowerManager;
 import android.util.Log;
+import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.Random;
@@ -30,6 +32,9 @@ public class MusicService extends Service implements
 
     private String mTrackTitle = "";
     private static final int NOTIFICATION_ID = 816;
+
+    public static final String UPDATE_TRACK = "xeleciumlabs.musicflowlist.updatetrack";
+    private Intent mUpdateTrackIntent;
 
     private boolean mShuffle = false;
     private Random mRandom;
@@ -54,6 +59,7 @@ public class MusicService extends Service implements
         initMusicPlayer();
 
         mRandom = new Random();
+        mUpdateTrackIntent = new Intent(UPDATE_TRACK);
     }
 
     @Override
@@ -61,6 +67,7 @@ public class MusicService extends Service implements
         //start playback
         mp.start();
 
+        //Notification info
         Intent notIntent = new Intent(this, MainActivity.class);
         notIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         PendingIntent pendInt = PendingIntent.getActivity(this, 0, notIntent, PendingIntent.FLAG_UPDATE_CURRENT);
@@ -76,6 +83,9 @@ public class MusicService extends Service implements
         Notification not = builder.build();
 
         startForeground(NOTIFICATION_ID, not);
+
+        mUpdateTrackIntent.putExtra("trackID", mIndex);
+        sendBroadcast(mUpdateTrackIntent);
     }
 
     @Override
@@ -211,5 +221,7 @@ public class MusicService extends Service implements
         stopForeground(true);
     }
 
+
+    //TODO: If other application using the music stream, pause media player
 
 }
