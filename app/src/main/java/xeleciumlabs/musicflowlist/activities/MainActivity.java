@@ -219,8 +219,8 @@ public class MainActivity extends Activity {
             mMusicService.playPrev();
             if (playbackPaused) {
                 playbackPaused = false;
+                mPlayPauseButton.setImageDrawable(getResources().getDrawable(R.drawable.pause));
             }
-            mPlayBackContainer.setVisibility(View.VISIBLE);
         }
     };
 
@@ -276,8 +276,8 @@ public class MainActivity extends Activity {
             mMusicService.playNext();
             if (playbackPaused) {
                 playbackPaused = false;
+                mPlayPauseButton.setImageDrawable(getResources().getDrawable(R.drawable.pause));
             }
-            mPlayBackContainer.setVisibility(View.VISIBLE);
         }
     };
 
