@@ -67,6 +67,11 @@ public class MusicService extends Service implements
     }
 
     @Override
+    public void onDestroy() {
+        stopForeground(true);
+    }
+
+    @Override
     public void onPrepared(MediaPlayer mp) {
         //start playback
         mp.start();
@@ -227,10 +232,6 @@ public class MusicService extends Service implements
         playSong();
     }
 
-    @Override
-    public void onDestroy() {
-        stopForeground(true);
-    }
 
 
     //TODO: If other application using the music stream, pause media player

@@ -156,6 +156,14 @@ public class MainActivity extends Activity {
         registerReceiver(updateTrackReceiver, new IntentFilter(MusicService.UPDATE_TRACK));
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        unregisterReceiver(updateTrackReceiver);
+        mHandler.removeCallbacks(updateTrackTime);
+        unbindService(musicConnection);
+    }
+
     BroadcastReceiver updateTrackReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
