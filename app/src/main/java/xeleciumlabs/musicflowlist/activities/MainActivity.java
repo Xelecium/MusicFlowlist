@@ -9,9 +9,9 @@ import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.IBinder;
 import android.provider.MediaStore;
 import android.view.MenuItem;
@@ -29,8 +29,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Timer;
-import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
 
 import xeleciumlabs.musicflowlist.MusicService;
@@ -53,6 +51,8 @@ public class MainActivity extends Activity {
 
     private boolean playbackPaused = false;
     private boolean seeking = false;
+
+    private Handler mHandler = new Handler();
 
     private LinearLayout mPlayBackContainer;
 
@@ -160,6 +160,7 @@ public class MainActivity extends Activity {
         @Override
         public void onReceive(Context context, Intent intent) {
             int trackID = intent.getIntExtra("trackID", -1);
+            int trackDuration = intent.getIntExtra("trackDuration", 0);
             Track currentTrack = mTracks.get(trackID);
             String trackTitle = currentTrack.getTitle();
             Uri trackAlbumArt = currentTrack.getAlbumArt();
@@ -181,6 +182,8 @@ public class MainActivity extends Activity {
 
             mCurrentTrackTitle.setText(trackTitle);
             mCurrentTrackAlbumArt.setImageBitmap(bitmap);
+            mCurrentTrackLength.setText(timeParse(trackDuration));
+            mPlaySeekBar.setMax(trackDuration);
         }
     };
 
@@ -225,7 +228,7 @@ public class MainActivity extends Activity {
     OnClickListener rewind = new OnClickListener() {
         @Override
         public void onClick(View v) {
-            int currentPosition = mMusicService.getPosn();
+            int currentPosition = mMusicService.getPosition();
             int seekPosition = currentPosition - (10 * 1000);
 
             if (seekPosition < 0) {
@@ -256,10 +259,10 @@ public class MainActivity extends Activity {
     OnClickListener forward = new OnClickListener() {
         @Override
         public void onClick(View v) {
-            int currentPosition = mMusicService.getPosn();
+            int currentPosition = mMusicService.getPosition();
             int seekPosition = currentPosition + (10 * 1000);
-            if (seekPosition > mMusicService.getDur()) {
-                seekPosition = mMusicService.getDur();
+            if (seekPosition > mMusicService.getDuration()) {
+                seekPosition = mMusicService.getDuration();
             }
 
             mMusicService.seek(seekPosition);
@@ -289,64 +292,55 @@ public class MainActivity extends Activity {
 
         @Override
         public void onStartTrackingTouch(SeekBar seekBar) {
-            //set flag that seeking is happening
+            //set flag that user is seeking
             seeking = true;
+//            mHandler.removeCallbacks(updateTrackTime);
         }
 
         @Override
         public void onStopTrackingTouch(SeekBar seekBar) {
-            //unset flag that seeking is happening
+            //unset flag that user is seeking
             seeking = false;
-            //update musicservice to new progress location
+            //Seek to the corresponding part of the track
             mMusicService.seek(newPosition);
+
+            updateTrackTime();
         }
     };
 
     public void updateTrackTime() {
-        if (mMusicService != null) {
-            final Timer timer = new Timer();
-            timer.scheduleAtFixedRate(new TimerTask() {
-
-                @Override
-                public void run() {
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            if (mMusicService != null && !playbackPaused) {
-                                mCurrentTrackTime.post(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        if (!seeking) {
-                                            int position = mMusicService.getPosn();
-                                            int duration = mMusicService.getDur();
-                                            String trackTime = timeParse(position);
-                                            String trackLength = timeParse(duration);
-                                            mCurrentTrackTime.setText(trackTime);
-                                            mCurrentTrackLength.setText(trackLength);
-                                            mPlaySeekBar.setMax(duration);
-                                            mPlaySeekBar.setProgress(position);
-                                        }
-                                        else {
-                                            int position = mPlaySeekBar.getProgress();
-                                            String seekTime = timeParse(position);
-                                            mCurrentTrackTime.setText(seekTime);
-                                        }
-                                    }
-                                });
-                            }
-                            else {
-                                timer.cancel();
-                                timer.purge();
-                            }
-                        }
-                    });
-                }
-            }, 0, 1000);
-        }
+        mHandler.postDelayed(updateTrackTime, 100);
     }
 
+
+    private Runnable updateTrackTime = new Runnable() {
+        @Override
+        public void run() {
+            //Behavior will be slightly different depending on if the user is seeking
+            if (seeking) {
+                //Take the position based on where the SeekBar thumb is
+                int trackPosition = mPlaySeekBar.getProgress();
+                //Update the TextView with the time based on the SeekBar Thumb's position
+                String trackTime = timeParse(trackPosition);
+                mCurrentTrackTime.setText(trackTime);
+                //Decrease the delay between updates to be smoother
+                mHandler.postDelayed(this, 50);
+            }
+            else {
+                //Update position of the SeekBar
+                int trackPosition = mMusicService.getPosition();
+                mPlaySeekBar.setProgress(trackPosition);
+                //Update the TextView with the current time
+                String trackTime = timeParse(trackPosition);
+                mCurrentTrackTime.setText(trackTime);
+                //Repeat the runnable
+                mHandler.postDelayed(this, 100);
+            }
+        }
+    };
+
     public String timeParse(int milliTime) {
-        //if time provided is less than 10 minutes
+        //if time provided is less than 10 minutes, format as m:ss
         if (milliTime < (10 * 60 * 1000)) {
             return String.format("%01d:%02d",
                     TimeUnit.MILLISECONDS.toMinutes(milliTime),
@@ -354,7 +348,7 @@ public class MainActivity extends Activity {
                             TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(milliTime)));
         }
 
-        //if time provided is less than 1 hour
+        //if time provided is less than 1 hour, format as mm:ss
         if (milliTime < (60 * 60 * 1000)) {
             return String.format("%02d:%02d",
                     TimeUnit.MILLISECONDS.toMinutes(milliTime) -
@@ -363,6 +357,7 @@ public class MainActivity extends Activity {
                             TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(milliTime)));
         }
 
+        //if time provided is over an hour, format as h:mm:ss (h can be any number
         return String.format("%d:%02d:%02d",
                 TimeUnit.MILLISECONDS.toHours(milliTime),
                 TimeUnit.MILLISECONDS.toMinutes(milliTime) -

@@ -30,6 +30,8 @@ public class MusicService extends Service implements
         MediaPlayer.OnErrorListener,
         MediaPlayer.OnCompletionListener {
 
+    private static final String TAG = MusicService.class.getSimpleName();
+
     private String mTrackTitle = "";
     private static final int NOTIFICATION_ID = 816;
 
@@ -49,16 +51,18 @@ public class MusicService extends Service implements
     private final IBinder mMusicBinder = new MusicBinder();
 
     public void onCreate(){
-        //create the service
         super.onCreate();
-        //initialize position
+
+        //Initialize the Track Index
         mIndex = 0;
-        //create player
+        //Create the MediaPlayer
         mPlayer = new MediaPlayer();
 
         initMusicPlayer();
 
+        //Random used for shuffling, if enabled
         mRandom = new Random();
+        //Send info to
         mUpdateTrackIntent = new Intent(UPDATE_TRACK);
     }
 
@@ -66,6 +70,7 @@ public class MusicService extends Service implements
     public void onPrepared(MediaPlayer mp) {
         //start playback
         mp.start();
+        Log.d(TAG, "Playing track number: " + mIndex);
 
         //Notification info
         Intent notIntent = new Intent(this, MainActivity.class);
@@ -85,6 +90,7 @@ public class MusicService extends Service implements
         startForeground(NOTIFICATION_ID, not);
 
         mUpdateTrackIntent.putExtra("trackID", mIndex);
+        mUpdateTrackIntent.putExtra("trackDuration", getDuration());
         sendBroadcast(mUpdateTrackIntent);
     }
 
@@ -142,15 +148,17 @@ public class MusicService extends Service implements
         mShuffle = !mShuffle;
     }
 
+    //Play a track
     public void playSong() {
-        //play a song
+        //Clear the MediaPlayer
         mPlayer.reset();
 
-        //get song
+        //Get the track from the array
         Track playSong = mTracks.get(mIndex);
-        //get id
+        //Get the ID from the selected track
         long currSong = playSong.getId();
-        //set uri
+        String trackTitle = playSong.getTitle();
+        //Set the URI based on the track's ID
         Uri trackUri = ContentUris.withAppendedId(
                 android.provider.MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
                 currSong);
@@ -161,18 +169,19 @@ public class MusicService extends Service implements
         catch(Exception e){
             Log.e("MUSIC SERVICE", "Error setting data source", e);
         }
+        Log.d(TAG, "Playing track: " + trackTitle);
         mPlayer.prepareAsync();
     }
 
-    public int getPosn(){
+    public int getPosition(){
         return mPlayer.getCurrentPosition();
     }
 
-    public int getDur(){
+    public int getDuration(){
         return mPlayer.getDuration();
     }
 
-    public boolean isPng(){
+    public boolean isPlaying(){
         return mPlayer.isPlaying();
     }
 
@@ -180,8 +189,8 @@ public class MusicService extends Service implements
         mPlayer.pause();
     }
 
-    public void seek(int posn){
-        mPlayer.seekTo(posn);
+    public void seek(int position){
+        mPlayer.seekTo(position);
     }
 
     public void go(){
@@ -193,6 +202,7 @@ public class MusicService extends Service implements
         if (mIndex < 0) {
             mIndex = mTracks.size() - 1;
         }
+        Log.d(TAG, "Playing previous track: " + mIndex);
         playSong();
     }
 
@@ -213,6 +223,7 @@ public class MusicService extends Service implements
                 mIndex = 0;
             }
         }
+        Log.d(TAG, "Playing next track: " + mIndex);
         playSong();
     }
 

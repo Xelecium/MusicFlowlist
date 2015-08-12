@@ -10,8 +10,6 @@ import android.graphics.BitmapFactory;
 import android.os.IBinder;
 import android.os.Bundle;
 import android.provider.MediaStore;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.ListView;
@@ -223,8 +221,8 @@ public class FollowSelectorActivity extends Activity implements MediaPlayerContr
 
     @Override
     public int getDuration() {
-        if (mMusicService != null && musicBound && mMusicService.isPng()) {
-            return mMusicService.getDur();
+        if (mMusicService != null && musicBound && mMusicService.isPlaying()) {
+            return mMusicService.getDuration();
         }
         else {
             return 0;
@@ -233,8 +231,8 @@ public class FollowSelectorActivity extends Activity implements MediaPlayerContr
 
     @Override
     public int getCurrentPosition() {
-        if (mMusicService != null && musicBound && mMusicService.isPng()) {
-            return mMusicService.getPosn();
+        if (mMusicService != null && musicBound && mMusicService.isPlaying()) {
+            return mMusicService.getPosition();
         }
         else {
             return 0;
@@ -249,7 +247,7 @@ public class FollowSelectorActivity extends Activity implements MediaPlayerContr
     @Override
     public boolean isPlaying() {
         if (mMusicService != null && musicBound) {
-            return mMusicService.isPng();
+            return mMusicService.isPlaying();
         }
         return false;
     }
