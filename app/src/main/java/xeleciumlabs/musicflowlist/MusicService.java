@@ -86,7 +86,7 @@ public class MusicService extends Service implements
 
         Notification.Builder builder = new Notification.Builder(this);
 
-        builder.setSmallIcon(R.drawable.play)
+        builder.setSmallIcon(R.mipmap.launcher)
                 .setContentTitle("Playing")
                 .setContentText(mTrackTitle)
                 .setOngoing(true)
