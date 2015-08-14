@@ -50,6 +50,7 @@ public class MainActivity extends Activity {
     private Intent playIntent;
 
     private boolean playbackPaused = false;
+    private boolean mShuffle = false;
     private boolean seeking = false;
 
     private Handler mHandler = new Handler();
@@ -62,6 +63,8 @@ public class MainActivity extends Activity {
     private ImageView mPlayPauseButton;
     private ImageView mPlayForwardButton;
     private ImageView mPlayNextTrackButton;
+
+    private ImageView mShuffleButton;
 
     private SeekBar mPlaySeekBar;
 
@@ -89,6 +92,9 @@ public class MainActivity extends Activity {
         mPlayForwardButton.setOnClickListener(forward);
         mPlayNextTrackButton = (ImageView)findViewById(R.id.nextSong);
         mPlayNextTrackButton.setOnClickListener(playNext);
+
+        mShuffleButton = (ImageView)findViewById(R.id.shuffleButton);
+        mShuffleButton.setOnClickListener(shuffle);
 
         mPlaySeekBar = (SeekBar)findViewById(R.id.songSeekBar);
         mPlaySeekBar.setOnSeekBarChangeListener(seekBar);
@@ -157,9 +163,14 @@ public class MainActivity extends Activity {
     }
 
     @Override
+    protected void onPause() {
+        super.onPause();
+        unregisterReceiver(updateTrackReceiver);
+    }
+
+    @Override
     protected void onDestroy() {
         super.onDestroy();
-        unregisterReceiver(updateTrackReceiver);
         mHandler.removeCallbacks(updateTrackTime);
         unbindService(musicConnection);
     }
@@ -210,12 +221,9 @@ public class MainActivity extends Activity {
             mMusicService.setSong(position);
             mMusicService.playSong();
 
-            if (playbackPaused) {
-                playbackPaused = false;
-            }
+            unPause();
 
             mPlayBackContainer.setVisibility(VISIBLE);
-
             updateTrackTime();
         }
     };
@@ -225,10 +233,7 @@ public class MainActivity extends Activity {
         @Override
         public void onClick(View v) {
             mMusicService.playPrev();
-            if (playbackPaused) {
-                playbackPaused = false;
-                mPlayPauseButton.setImageDrawable(getResources().getDrawable(R.drawable.pause));
-            }
+            unPause();
         }
     };
 
@@ -282,9 +287,20 @@ public class MainActivity extends Activity {
         @Override
         public void onClick(View v) {
             mMusicService.playNext();
-            if (playbackPaused) {
-                playbackPaused = false;
-                mPlayPauseButton.setImageDrawable(getResources().getDrawable(R.drawable.pause));
+            unPause();
+        }
+    };
+
+    OnClickListener shuffle = new OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            mMusicService.setShuffle();
+            mShuffle = mMusicService.getShuffle();
+            if (mShuffle) {
+                mShuffleButton.setImageDrawable(getResources().getDrawable(R.drawable.shuffle));
+            }
+            else {
+                mShuffleButton.setImageDrawable(getResources().getDrawable(R.drawable.noshuffle));
             }
         }
     };
@@ -347,7 +363,14 @@ public class MainActivity extends Activity {
         }
     };
 
-    public String timeParse(int milliTime) {
+    private void unPause() {
+        if (playbackPaused) {
+            playbackPaused = false;
+            mPlayPauseButton.setImageDrawable(getResources().getDrawable(R.drawable.pause));
+        }
+    }
+
+    private String timeParse(int milliTime) {
         //if time provided is less than 10 minutes, format as m:ss
         if (milliTime < (10 * 60 * 1000)) {
             return String.format("%01d:%02d",
@@ -381,12 +404,5 @@ public class MainActivity extends Activity {
 
     //TODO: Random track
     //Choose a random track to start playing
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        //menu item selected
-        return super.onOptionsItemSelected(item);
-    }
-
 
 }

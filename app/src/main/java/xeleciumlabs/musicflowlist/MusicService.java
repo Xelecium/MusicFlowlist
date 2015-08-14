@@ -38,6 +38,9 @@ public class MusicService extends Service implements
     public static final String UPDATE_TRACK = "xeleciumlabs.musicflowlist.updatetrack";
     private Intent mUpdateTrackIntent;
 
+    private NotificationManager mManager;
+    private Notification mNotification;
+
     private boolean mShuffle = false;
     private Random mRandom;
 
@@ -68,7 +71,6 @@ public class MusicService extends Service implements
 
     @Override
     public void onDestroy() {
-        stopForeground(true);
     }
 
     @Override
@@ -84,15 +86,16 @@ public class MusicService extends Service implements
 
         Notification.Builder builder = new Notification.Builder(this);
 
-        builder.setContentIntent(pendInt)
-                .setSmallIcon(R.drawable.play)
-                .setTicker(mTrackTitle)
-                .setOngoing(true)
+        builder.setSmallIcon(R.drawable.play)
                 .setContentTitle("Playing")
-                .setContentText(mTrackTitle);
-        Notification not = builder.build();
+                .setContentText(mTrackTitle)
+                .setOngoing(true)
+                .setContentIntent(pendInt);
 
-        startForeground(NOTIFICATION_ID, not);
+        mManager = (NotificationManager)getSystemService(NOTIFICATION_SERVICE);
+        mNotification = builder.build();
+
+        mManager.notify(NOTIFICATION_ID, mNotification);
 
         mUpdateTrackIntent.putExtra("trackID", mIndex);
         mUpdateTrackIntent.putExtra("trackDuration", getDuration());
@@ -142,11 +145,17 @@ public class MusicService extends Service implements
     public boolean onUnbind(Intent intent){
         mPlayer.stop();
         mPlayer.release();
+
+        mManager.cancel(NOTIFICATION_ID);
         return false;
     }
 
     public void setSong(int songIndex){
         mIndex = songIndex;
+    }
+
+    public boolean getShuffle() {
+        return mShuffle;
     }
 
     public void setShuffle() {
@@ -162,7 +171,7 @@ public class MusicService extends Service implements
         Track playSong = mTracks.get(mIndex);
         //Get the ID from the selected track
         long currSong = playSong.getId();
-        String trackTitle = playSong.getTitle();
+        mTrackTitle = playSong.getTitle();
         //Set the URI based on the track's ID
         Uri trackUri = ContentUris.withAppendedId(
                 android.provider.MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
@@ -174,7 +183,7 @@ public class MusicService extends Service implements
         catch(Exception e){
             Log.e("MUSIC SERVICE", "Error setting data source", e);
         }
-        Log.d(TAG, "Playing track: " + trackTitle);
+        Log.d(TAG, "Playing track: " + mTrackTitle);
         mPlayer.prepareAsync();
     }
 

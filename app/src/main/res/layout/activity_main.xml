@@ -7,6 +7,39 @@
                 android:background="#FF55AADD"
     >
 
+    <RelativeLayout
+        android:id="@+id/titleBar"
+
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/title_bar_height"
+        android:background="#FFDDDDDD"
+        >
+
+        <TextView
+            android:id="@+id/titleText"
+            android:text="Music FlowList"
+            android:textStyle="bold"
+            android:textSize="25sp"
+            android:gravity="center_vertical"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_marginLeft="15dp"
+
+            >
+
+        </TextView>
+
+        <ImageButton
+            android:id="@+id/shuffleButton"
+            android:src="@drawable/noshuffle"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_alignParentEnd="true"
+            >
+        </ImageButton>
+
+    </RelativeLayout>
+
     <LinearLayout
         android:id="@+id/currentSong"
         android:layout_alignParentBottom="true"
@@ -160,6 +193,7 @@
         android:layout_height="match_parent"
         android:rowHeight="@dimen/track_item_height"
         android:layout_above="@id/currentSong"
+        android:layout_below="@id/titleBar"
         />
 
     <TextView
@@ -172,7 +206,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:paddingTop="15dp"
-
+        android:layout_below="@id/titleBar"
         />
 
 

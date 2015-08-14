@@ -24,7 +24,7 @@
 
         <ImageButton
             android:id="@+id/playButton"
-            android:src="@drawable/play_button"
+            android:src="@drawable/play"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:scaleType="fitXY"
