@@ -58,7 +58,7 @@
             android:orientation="horizontal"
             android:background="#FFDDDDDD"
             >
-            <ImageView
+            <ImageButton
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:id="@+id/prevSong"
@@ -69,7 +69,7 @@
                 android:paddingLeft="10dp"
                 android:paddingRight="10dp"
                 />
-            <ImageView
+            <ImageButton
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:id="@+id/rewind"
@@ -80,7 +80,7 @@
                 android:paddingLeft="10dp"
                 android:paddingRight="10dp"
                 />
-            <ImageView
+            <ImageButton
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:id="@+id/play"
@@ -91,7 +91,7 @@
                 android:paddingLeft="10dp"
                 android:paddingRight="10dp"
                 />
-            <ImageView
+            <ImageButton
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:id="@+id/forward"
@@ -102,7 +102,7 @@
                 android:paddingLeft="10dp"
                 android:paddingRight="10dp"
                 />
-            <ImageView
+            <ImageButton
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:id="@+id/nextSong"
