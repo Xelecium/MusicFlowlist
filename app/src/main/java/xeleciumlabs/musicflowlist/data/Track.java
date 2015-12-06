@@ -1,11 +1,11 @@
 package xeleciumlabs.musicflowlist.data;
 
-import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.util.Log;
 
-import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by Xelecium on 6/10/2015.
@@ -19,6 +19,8 @@ public class Track implements Parcelable {
     private Uri mAlbumArt;
 
     private Uri mTrackUri;                      //URI of the track being referenced
+
+    private List mFollowTracks;
 
     public static final Creator<Track> CREATOR = new Creator<Track>() {
         @Override
@@ -80,19 +82,30 @@ public class Track implements Parcelable {
     }
 
     //Add a track to the list of follow tracks
-    public void addFollowTrack(Track followTrack) {
+    public void addFollowTrack(long followTrackId) {
 
         //search the database for an item matching the current track
         //if it doesn't exist
-            //create one
-
-        //add selected track as a followtrack for the current track
+        if (mFollowTracks.contains(followTrackId)) {
+            //Already in the list
+        }
+        else {
+            //add track to the list of follow tracks
+            mFollowTracks.add(followTrackId);
+        }
     }
 
     //Remove a track from the list of follow tracks
-    public void removeFollowTrack(Track followTrack) {
+    public void removeFollowTrack(long followTrackId) {
 
         //remove the selected track as a followtrack for the current track
+        if (mFollowTracks.contains(followTrackId)) {
+            mFollowTracks.remove(followTrackId);
+        }
+        else {
+            //Not currently in the list, send debug message
+            Log.d("FLOWLIST_TRACK_REMOVE", "Attempted to remove non-existent follow track: " + followTrackId);
+        }
         //if the current track has no more followtracks
         //remove the current track from the database
     }
