@@ -3,10 +3,12 @@
               android:orientation="horizontal"
               android:layout_width="match_parent"
               android:layout_height="match_parent">
+
+
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="@dimen/track_item_height"
-        android:background="#FF55AADD"
+        android:background="@drawable/track_selector"
         >
         <!--
         <ImageView
