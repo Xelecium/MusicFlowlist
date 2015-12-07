@@ -146,6 +146,7 @@ public class MusicService extends Service implements
         mPlayer.stop();
         mPlayer.release();
 
+        Log.d(TAG, "Unbinding Service");
         mManager.cancel(NOTIFICATION_ID);
         return false;
     }
